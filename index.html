@@ -16,6 +16,8 @@
     <div class="background-shape shape-one"></div>
     <div class="background-shape shape-two"></div>
 
+    <!-- HEADER -->
+
     <header class="topbar">
 
         <div class="brand">
@@ -25,6 +27,7 @@
             </div>
 
             <div>
+
                 <h1>
                     FuelWise <span>India</span>
                 </h1>
@@ -32,6 +35,7 @@
                 <p>
                     Smart Fuel & Trip Cost Planner
                 </p>
+
             </div>
 
         </div>
@@ -44,6 +48,7 @@
 
 
     <main>
+
 
         <!-- HERO -->
 
@@ -62,7 +67,6 @@
                 Estimate distance, fuel, trip expenses and passenger cost
                 for road trips across India.
             </p>
-
 
             <div class="hero-stats">
 
@@ -487,102 +491,33 @@
             <div class="expense-grid">
 
                 <div class="expense-card">
-
-                    <div>
-                        🛣️
-                    </div>
-
-                    <label>
-                        Toll
-                    </label>
-
-                    <input
-                        id="toll"
-                        type="number"
-                        value="0"
-                        min="0"
-                    >
-
+                    <div>🛣️</div>
+                    <label>Toll</label>
+                    <input id="toll" type="number" value="0" min="0">
                 </div>
 
-
                 <div class="expense-card">
-
-                    <div>
-                        🅿️
-                    </div>
-
-                    <label>
-                        Parking
-                    </label>
-
-                    <input
-                        id="parking"
-                        type="number"
-                        value="0"
-                        min="0"
-                    >
-
+                    <div>🅿️</div>
+                    <label>Parking</label>
+                    <input id="parking" type="number" value="0" min="0">
                 </div>
 
-
                 <div class="expense-card">
-
-                    <div>
-                        🍔
-                    </div>
-
-                    <label>
-                        Food
-                    </label>
-
-                    <input
-                        id="food"
-                        type="number"
-                        value="0"
-                        min="0"
-                    >
-
+                    <div>🍔</div>
+                    <label>Food</label>
+                    <input id="food" type="number" value="0" min="0">
                 </div>
 
-
                 <div class="expense-card">
-
-                    <div>
-                        🏨
-                    </div>
-
-                    <label>
-                        Hotel
-                    </label>
-
-                    <input
-                        id="hotel"
-                        type="number"
-                        value="0"
-                        min="0"
-                    >
-
+                    <div>🏨</div>
+                    <label>Hotel</label>
+                    <input id="hotel" type="number" value="0" min="0">
                 </div>
 
-
                 <div class="expense-card">
-
-                    <div>
-                        ➕
-                    </div>
-
-                    <label>
-                        Other
-                    </label>
-
-                    <input
-                        id="other"
-                        type="number"
-                        value="0"
-                        min="0"
-                    >
-
+                    <div>➕</div>
+                    <label>Other</label>
+                    <input id="other" type="number" value="0" min="0">
                 </div>
 
             </div>
@@ -640,33 +575,17 @@
             <div class="route-result">
 
                 <div>
-
-                    <small>
-                        FROM
-                    </small>
-
-                    <strong id="resultFrom">
-                        -
-                    </strong>
-
+                    <small>FROM</small>
+                    <strong id="resultFrom">-</strong>
                 </div>
-
 
                 <div class="route-road">
                     🚗 ──────────
                 </div>
 
-
                 <div>
-
-                    <small>
-                        TO
-                    </small>
-
-                    <strong id="resultTo">
-                        -
-                    </strong>
-
+                    <small>TO</small>
+                    <strong id="resultTo">-</strong>
                 </div>
 
             </div>
@@ -675,104 +594,39 @@
             <div class="summary-grid">
 
                 <div class="result-card">
-
-                    <div>
-                        🛣️
-                    </div>
-
-                    <p>
-                        Total Distance
-                    </p>
-
-                    <strong id="resultDistance">
-                        0 KM
-                    </strong>
-
+                    <div>🛣️</div>
+                    <p>Total Distance</p>
+                    <strong id="resultDistance">0 KM</strong>
                 </div>
-
 
                 <div class="result-card">
-
-                    <div>
-                        ⛽
-                    </div>
-
-                    <p id="energyTitle">
-                        Fuel Required
-                    </p>
-
-                    <strong id="resultFuel">
-                        0 L
-                    </strong>
-
+                    <div>⛽</div>
+                    <p id="energyTitle">Fuel Required</p>
+                    <strong id="resultFuel">0 L</strong>
                 </div>
-
 
                 <div class="result-card">
-
-                    <div>
-                        💰
-                    </div>
-
-                    <p>
-                        Fuel Cost
-                    </p>
-
-                    <strong id="resultFuelCost">
-                        ₹0
-                    </strong>
-
+                    <div>💰</div>
+                    <p>Fuel Cost</p>
+                    <strong id="resultFuelCost">₹0</strong>
                 </div>
-
 
                 <div class="result-card">
-
-                    <div>
-                        📍
-                    </div>
-
-                    <p>
-                        Cost / KM
-                    </p>
-
-                    <strong id="resultCostKm">
-                        ₹0
-                    </strong>
-
+                    <div>📍</div>
+                    <p>Cost / KM</p>
+                    <strong id="resultCostKm">₹0</strong>
                 </div>
-
 
                 <div class="result-card main-result-card">
-
-                    <div>
-                        💳
-                    </div>
-
-                    <p>
-                        Total Trip Cost
-                    </p>
-
-                    <strong id="resultTotal">
-                        ₹0
-                    </strong>
-
+                    <div>💳</div>
+                    <p>Total Trip Cost</p>
+                    <strong id="resultTotal">₹0</strong>
                 </div>
 
-
                 <div class="result-card">
-
-                    <div>
-                        👥
-                    </div>
-
-                    <p>
-                        Per Person
-                    </p>
-
-                    <strong id="resultPerPerson">
-                        ₹0
-                    </strong>
-
+                    <div>👥</div>
+                    <p>Per Person</p>
+                    <strong id="resultPerPerson">₹0</strong>
                 </div>
 
             </div>
@@ -784,45 +638,21 @@
                     ⛽ Fuel Planning
                 </h3>
 
-
                 <div class="analysis-grid">
 
                     <div>
-
-                        <span>
-                            Base Requirement
-                        </span>
-
-                        <strong id="baseFuel">
-                            -
-                        </strong>
-
+                        <span>Base Requirement</span>
+                        <strong id="baseFuel">-</strong>
                     </div>
 
-
                     <div>
-
-                        <span>
-                            With Reserve
-                        </span>
-
-                        <strong id="reserveFuel">
-                            -
-                        </strong>
-
+                        <span>With Reserve</span>
+                        <strong id="reserveFuel">-</strong>
                     </div>
 
-
                     <div>
-
-                        <span>
-                            Tank Status
-                        </span>
-
-                        <strong id="tankStatus">
-                            Not provided
-                        </strong>
-
+                        <span>Tank Status</span>
+                        <strong id="tankStatus">Not provided</strong>
                     </div>
 
                 </div>
@@ -850,36 +680,19 @@
                     🚕 Own Vehicle vs Cab
                 </h3>
 
-
                 <div class="analysis-grid">
 
                     <div>
-
-                        <span>
-                            🚗 Own Vehicle
-                        </span>
-
-                        <strong id="ownVehicleCost">
-                            ₹0
-                        </strong>
-
+                        <span>🚗 Own Vehicle</span>
+                        <strong id="ownVehicleCost">₹0</strong>
                     </div>
 
-
                     <div>
-
-                        <span>
-                            🚕 Cab
-                        </span>
-
-                        <strong id="cabCost">
-                            ₹0
-                        </strong>
-
+                        <span>🚕 Cab</span>
+                        <strong id="cabCost">₹0</strong>
                     </div>
 
                 </div>
-
 
                 <div
                     id="cabMessage"
@@ -891,7 +704,7 @@
         </section>
 
 
-        <!-- STEP 4 -->
+        <!-- STEP 4 EMAIL -->
 
         <section
             id="passengerEmailSection"
@@ -1029,14 +842,13 @@
             <div class="security-note">
 
                 🔐 Email reminders are sent securely through the FuelWise server.
-                Your email API key is never exposed in the browser.
 
             </div>
 
         </section>
 
 
-        <!-- RECENT -->
+        <!-- HISTORY -->
 
         <section class="main-card">
 
