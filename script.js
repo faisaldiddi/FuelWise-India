@@ -1,27 +1,66 @@
 // ======================================================
 // FUELWISE INDIA
+// COMPLETE EMAILJS VERSION
 // ======================================================
 
 
 // ======================================================
 // EMAILJS CONFIGURATION
 // ======================================================
-// Replace these 3 values with your EmailJS details.
 
 const EMAILJS_PUBLIC_KEY = "LfbDU_QJJMEXkCi4F";
 const EMAILJS_SERVICE_ID = "service_hdozlqj";
 const EMAILJS_TEMPLATE_ID = "template_be4wbh4";
 
 
-if (
-    window.emailjs &&
-    EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY"
-) {
+// ======================================================
+// ELEMENT HELPER
+// ======================================================
 
-    emailjs.init({
-        publicKey: EMAILJS_PUBLIC_KEY
-    });
+const $ = (id) => document.getElementById(id);
 
+
+// ======================================================
+// GLOBAL VARIABLE
+// ======================================================
+
+let currentTrip = null;
+
+
+// ======================================================
+// INITIALIZE EMAILJS
+// ======================================================
+
+function initializeEmailJS() {
+
+    if (typeof emailjs === "undefined") {
+
+        console.error(
+            "EmailJS library is not loaded."
+        );
+
+        return;
+    }
+
+    try {
+
+        emailjs.init({
+            publicKey: EMAILJS_PUBLIC_KEY
+        });
+
+        console.log(
+            "EmailJS initialized successfully."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "EmailJS initialization error:",
+            error
+        );
+    }
 }
 
 
@@ -36,6 +75,7 @@ const indianCities = {
     Delhi: [28.6139, 77.2090],
     Jaipur: [26.9124, 75.7873],
     Agra: [27.1767, 78.0081],
+
     Ahmedabad: [23.0225, 72.5714],
     Surat: [21.1702, 72.8311],
     Vadodara: [22.3072, 73.1812],
@@ -101,6 +141,7 @@ const indianCities = {
     Thiruvananthapuram: [8.5241, 76.9366],
     Kozhikode: [11.2588, 75.7804],
     Munnar: [10.0889, 77.0595]
+
 };
 
 
@@ -166,37 +207,22 @@ const knownDistances = {
 
     "Kochi|Munnar": 130,
     "Kochi|Coimbatore": 190
+
 };
 
 
 // ======================================================
-// ELEMENT HELPER
+// MONEY FORMAT
 // ======================================================
 
-const $ = id =>
-    document.getElementById(id);
-
-
-// ======================================================
-// VARIABLES
-// ======================================================
-
-let currentTrip = null;
-
-
-// ======================================================
-// MONEY
-// ======================================================
-
-const formatter =
-    new Intl.NumberFormat(
-        "en-IN",
-        {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 2
-        }
-    );
+const formatter = new Intl.NumberFormat(
+    "en-IN",
+    {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2
+    }
+);
 
 
 function money(value) {
@@ -204,161 +230,277 @@ function money(value) {
     return formatter.format(
         Number(value) || 0
     );
-
 }
 
 
 function numberValue(id) {
 
+    const element = $(id);
+
+    if (!element) {
+        return 0;
+    }
+
     return Math.max(
         0,
-        Number($(id).value) || 0
+        Number(element.value) || 0
     );
-
 }
 
 
 // ======================================================
-// CITIES
+// LOAD CITIES
 // ======================================================
 
 function populateCities() {
 
-    const cities =
-        Object.keys(indianCities).sort();
+    const fromSelect = $("fromCity");
+    const toSelect = $("toCity");
+
+    if (!fromSelect || !toSelect) {
+        return;
+    }
+
+    fromSelect.innerHTML = "";
+    toSelect.innerHTML = "";
 
 
     const options = [
+
         "Select City",
-        ...cities,
+
+        ...Object
+            .keys(indianCities)
+            .sort(),
+
         "Custom Location"
+
     ];
 
 
-    ["fromCity", "toCity"]
-        .forEach(id => {
+    options.forEach((city) => {
 
-            const select = $(id);
+        const fromOption =
+            document.createElement(
+                "option"
+            );
 
-            options.forEach(city => {
-
-                const option =
-                    document.createElement("option");
-
-                option.value = city;
-                option.textContent = city;
-
-                select.appendChild(option);
-
-            });
-
-        });
+        fromOption.value = city;
+        fromOption.textContent = city;
 
 
-    $("fromCity").value = "Mumbai";
-    $("toCity").value = "Pune";
+        const toOption =
+            document.createElement(
+                "option"
+            );
 
+        toOption.value = city;
+        toOption.textContent = city;
+
+
+        fromSelect.appendChild(
+            fromOption
+        );
+
+        toSelect.appendChild(
+            toOption
+        );
+
+    });
+
+
+    fromSelect.value =
+        "Mumbai";
+
+    toSelect.value =
+        "Pune";
 }
 
 
 // ======================================================
-// DISTANCE
+// DISTANCE FUNCTIONS
 // ======================================================
 
 function toRadians(value) {
 
-    return value * Math.PI / 180;
-
+    return value *
+        Math.PI /
+        180;
 }
 
 
-function straightDistance(a, b) {
+function straightDistance(
+    pointA,
+    pointB
+) {
 
-    const earth = 6371;
-
-    const lat1 = toRadians(a[0]);
-    const lat2 = toRadians(b[0]);
-
-    const dLat =
-        toRadians(b[0] - a[0]);
-
-    const dLon =
-        toRadians(b[1] - a[1]);
+    const earthRadius =
+        6371;
 
 
-    const x =
-        Math.sin(dLat / 2) ** 2
-        +
-        Math.cos(lat1)
-        *
-        Math.cos(lat2)
-        *
-        Math.sin(dLon / 2) ** 2;
-
-
-    return earth * 2 *
-        Math.atan2(
-            Math.sqrt(x),
-            Math.sqrt(1 - x)
+    const lat1 =
+        toRadians(
+            pointA[0]
         );
 
+
+    const lat2 =
+        toRadians(
+            pointB[0]
+        );
+
+
+    const latDifference =
+        toRadians(
+            pointB[0] -
+            pointA[0]
+        );
+
+
+    const lonDifference =
+        toRadians(
+            pointB[1] -
+            pointA[1]
+        );
+
+
+    const calculation =
+
+        Math.sin(
+            latDifference / 2
+        ) ** 2
+
+        +
+
+        Math.cos(lat1)
+
+        *
+
+        Math.cos(lat2)
+
+        *
+
+        Math.sin(
+            lonDifference / 2
+        ) ** 2;
+
+
+    return earthRadius *
+        2 *
+        Math.atan2(
+
+            Math.sqrt(
+                calculation
+            ),
+
+            Math.sqrt(
+                1 -
+                calculation
+            )
+
+        );
 }
 
 
-function knownRoadDistance(from, to) {
+function knownRoadDistance(
+    from,
+    to
+) {
 
     return (
-        knownDistances[`${from}|${to}`]
-        ??
-        knownDistances[`${to}|${from}`]
-        ??
-        null
-    );
 
+        knownDistances[
+            `${from}|${to}`
+        ]
+
+        ??
+
+        knownDistances[
+            `${to}|${from}`
+        ]
+
+        ??
+
+        null
+
+    );
 }
 
 
-function getDistance(from, to) {
+function getDistance(
+    from,
+    to
+) {
 
     const known =
-        knownRoadDistance(from, to);
+        knownRoadDistance(
+            from,
+            to
+        );
 
 
     if (known) {
 
         return {
-            distance: known,
-            exactStored: true
-        };
 
+            distance:
+                known,
+
+            exactStored:
+                true
+
+        };
     }
 
 
     if (
-        indianCities[from] &&
+        indianCities[from]
+        &&
         indianCities[to]
     ) {
 
         const straight =
             straightDistance(
+
                 indianCities[from],
+
                 indianCities[to]
+
             );
 
 
-        let roadFactor = 1.24;
+        let roadFactor =
+            1.24;
 
 
-        if (straight < 100) {
-            roadFactor = 1.32;
+        if (
+            straight <
+            100
+        ) {
+
+            roadFactor =
+                1.32;
+
         }
 
-        else if (straight < 300) {
-            roadFactor = 1.27;
+        else if (
+            straight <
+            300
+        ) {
+
+            roadFactor =
+                1.27;
+
         }
 
-        else if (straight > 1000) {
-            roadFactor = 1.18;
+        else if (
+            straight >
+            1000
+        ) {
+
+            roadFactor =
+                1.18;
+
         }
 
 
@@ -366,18 +508,18 @@ function getDistance(from, to) {
 
             distance:
                 Math.round(
-                    straight * roadFactor
+                    straight *
+                    roadFactor
                 ),
 
-            exactStored: false
+            exactStored:
+                false
 
         };
-
     }
 
 
     return null;
-
 }
 
 
@@ -387,84 +529,128 @@ function getDistance(from, to) {
 
 function updateRouteStatus() {
 
+    const fromCity =
+        $("fromCity");
+
+    const toCity =
+        $("toCity");
+
+
+    if (
+        !fromCity ||
+        !toCity
+    ) {
+        return;
+    }
+
+
     const from =
-        $("fromCity").value;
+        fromCity.value;
+
 
     const to =
-        $("toCity").value;
+        toCity.value;
 
 
     const custom =
-        from === "Custom Location"
+        from ===
+        "Custom Location"
+
         ||
-        to === "Custom Location";
+
+        to ===
+        "Custom Location";
 
 
-    $("customLocationBox")
-        .classList.toggle(
-            "hidden",
-            !custom
-        );
+    const customBox =
+        $("customLocationBox");
+
+
+    if (customBox) {
+
+        customBox
+            .classList
+            .toggle(
+                "hidden",
+                !custom
+            );
+    }
+
+
+    const distanceText =
+        $("distanceText");
+
+
+    if (!distanceText) {
+        return;
+    }
 
 
     if (custom) {
 
-        $("distanceText").textContent =
+        distanceText.textContent =
             "Enter your custom locations and road distance.";
 
         return;
-
     }
 
 
     if (
-        from === "Select City"
+        from ===
+        "Select City"
+
         ||
-        to === "Select City"
+
+        to ===
+        "Select City"
     ) {
 
-        $("distanceText").textContent =
+        distanceText.textContent =
             "Select both cities.";
 
         return;
-
     }
 
 
-    if (from === to) {
+    if (
+        from ===
+        to
+    ) {
 
-        $("distanceText").textContent =
+        distanceText.textContent =
             "Choose two different cities.";
 
         return;
-
     }
 
 
     const result =
-        getDistance(from, to);
+        getDistance(
+            from,
+            to
+        );
 
 
     if (!result) {
 
-        $("distanceText").textContent =
+        distanceText.textContent =
             "Distance unavailable.";
 
         return;
-
     }
 
 
-    $("distanceText").textContent =
+    distanceText.textContent =
         `${from} → ${to} • ${
-            result.exactStored ? "" : "~"
+            result.exactStored
+                ? ""
+                : "~"
         }${result.distance} KM`;
-
 }
 
 
 // ======================================================
-// ROUTE DATA
+// GET ROUTE DATA
 // ======================================================
 
 function getRouteData() {
@@ -472,26 +658,39 @@ function getRouteData() {
     const from =
         $("fromCity").value;
 
+
     const to =
         $("toCity").value;
 
 
     const custom =
-        from === "Custom Location"
+        from ===
+        "Custom Location"
+
         ||
-        to === "Custom Location";
+
+        to ===
+        "Custom Location";
 
 
     if (custom) {
 
         const customFrom =
-            $("customFrom").value.trim();
+            $("customFrom")
+                .value
+                .trim();
+
 
         const customTo =
-            $("customTo").value.trim();
+            $("customTo")
+                .value
+                .trim();
+
 
         const distance =
-            numberValue("customDistance");
+            numberValue(
+                "customDistance"
+            );
 
 
         if (
@@ -503,43 +702,55 @@ function getRouteData() {
             throw new Error(
                 "Enter custom locations and road distance."
             );
-
         }
 
 
         return {
-            from: customFrom,
-            to: customTo,
-            distance: distance
-        };
 
+            from:
+                customFrom,
+
+            to:
+                customTo,
+
+            distance
+
+        };
     }
 
 
     if (
-        from === "Select City"
+        from ===
+        "Select City"
+
         ||
-        to === "Select City"
+
+        to ===
+        "Select City"
     ) {
 
         throw new Error(
             "Select starting point and destination."
         );
-
     }
 
 
-    if (from === to) {
+    if (
+        from ===
+        to
+    ) {
 
         throw new Error(
             "Starting point and destination cannot be the same."
         );
-
     }
 
 
     const result =
-        getDistance(from, to);
+        getDistance(
+            from,
+            to
+        );
 
 
     if (!result) {
@@ -547,27 +758,45 @@ function getRouteData() {
         throw new Error(
             "Unable to estimate route."
         );
-
     }
 
 
     return {
-        from,
-        to,
-        distance: result.distance
-    };
 
+        from,
+
+        to,
+
+        distance:
+            result.distance
+
+    };
 }
 
 
 // ======================================================
-// CALCULATE
+// CALCULATE TRIP
 // ======================================================
 
 function calculateTrip() {
 
-    $("errorMessage")
-        .classList.add("hidden");
+    console.log(
+        "Calculate My Trip clicked."
+    );
+
+
+    const errorBox =
+        $("errorMessage");
+
+
+    if (errorBox) {
+
+        errorBox
+            .classList
+            .add(
+                "hidden"
+            );
+    }
 
 
     try {
@@ -577,35 +806,48 @@ function calculateTrip() {
 
 
         const mileage =
-            numberValue("mileage");
-
-        const fuelPrice =
-            numberValue("fuelPrice");
-
-        const travellers =
-            Math.max(
-                1,
-                Math.round(
-                    numberValue("passengers")
-                )
+            numberValue(
+                "mileage"
             );
 
 
-        if (mileage <= 0) {
+        const fuelPrice =
+            numberValue(
+                "fuelPrice"
+            );
+
+
+        const travellers =
+            Math.max(
+
+                1,
+
+                Math.round(
+                    numberValue(
+                        "passengers"
+                    )
+                )
+
+            );
+
+
+        if (
+            mileage <= 0
+        ) {
 
             throw new Error(
                 "Enter valid mileage."
             );
-
         }
 
 
-        if (fuelPrice <= 0) {
+        if (
+            fuelPrice <= 0
+        ) {
 
             throw new Error(
                 "Enter valid fuel price."
             );
-
         }
 
 
@@ -618,95 +860,155 @@ function calculateTrip() {
             "round"
         ) {
 
-            totalDistance *= 2;
-
+            totalDistance *=
+                2;
         }
 
 
         const baseFuel =
-            totalDistance / mileage;
+            totalDistance /
+            mileage;
 
 
         const reserve =
-            numberValue("reserve");
+            numberValue(
+                "reserve"
+            );
 
 
         const fuelRequired =
             baseFuel *
-            (1 + reserve / 100);
+            (
+                1 +
+                reserve /
+                100
+            );
 
 
         const fuelCost =
-            fuelRequired * fuelPrice;
+            fuelRequired *
+            fuelPrice;
 
 
         const expenses = {
 
-            Fuel: fuelCost,
-            Toll: numberValue("toll"),
-            Parking: numberValue("parking"),
-            Food: numberValue("food"),
-            Hotel: numberValue("hotel"),
-            Other: numberValue("other")
+            Fuel:
+                fuelCost,
+
+            Toll:
+                numberValue(
+                    "toll"
+                ),
+
+            Parking:
+                numberValue(
+                    "parking"
+                ),
+
+            Food:
+                numberValue(
+                    "food"
+                ),
+
+            Hotel:
+                numberValue(
+                    "hotel"
+                ),
+
+            Other:
+                numberValue(
+                    "other"
+                )
 
         };
 
 
         const totalCost =
-            Object.values(expenses)
+            Object
+                .values(
+                    expenses
+                )
                 .reduce(
-                    (total, value) =>
-                        total + value,
+
+                    (
+                        total,
+                        value
+                    ) =>
+                        total +
+                        value,
+
                     0
+
                 );
 
 
         const perPerson =
-            totalCost / travellers;
+            totalCost /
+            travellers;
 
 
-        let unit = "L";
+        let unit =
+            "L";
+
+
+        const fuelType =
+            $("fuelType").value;
 
 
         if (
-            $("fuelType").value ===
+            fuelType ===
             "cng"
         ) {
 
-            unit = "KG";
-
+            unit =
+                "KG";
         }
 
 
         if (
-            $("fuelType").value ===
+            fuelType ===
             "electric"
         ) {
 
-            unit = "kWh";
-
+            unit =
+                "kWh";
         }
 
 
         currentTrip = {
 
-            from: route.from,
-            to: route.to,
+            from:
+                route.from,
 
-            distance: totalDistance,
+            to:
+                route.to,
+
+            distance:
+                totalDistance,
 
             baseFuel,
+
             fuelRequired,
+
             fuelCost,
 
             totalCost,
+
             perPerson,
 
             travellers,
+
             expenses,
+
             unit
 
         };
+
+
+        console.log(
+            "Calculated Trip:",
+            currentTrip
+        );
 
 
         displayTrip();
@@ -717,60 +1019,92 @@ function calculateTrip() {
 
     catch (error) {
 
-        $("errorMessage").textContent =
-            "⚠ " + error.message;
+        console.error(
+            "CALCULATION ERROR:",
+            error
+        );
 
-        $("errorMessage")
-            .classList.remove("hidden");
 
+        if (errorBox) {
+
+            errorBox.textContent =
+                "⚠ " +
+                error.message;
+
+
+            errorBox
+                .classList
+                .remove(
+                    "hidden"
+                );
+        }
     }
-
 }
 
 
 // ======================================================
-// DISPLAY
+// DISPLAY RESULTS
 // ======================================================
 
 function displayTrip() {
 
-    const trip =
-        currentTrip;
+    if (!currentTrip) {
+        return;
+    }
 
 
     $("resultFrom").textContent =
-        trip.from;
+        currentTrip.from;
+
 
     $("resultTo").textContent =
-        trip.to;
+        currentTrip.to;
+
 
     $("resultDistance").textContent =
-        `${trip.distance.toFixed(1)} KM`;
+        `${currentTrip.distance.toFixed(1)} KM`;
+
 
     $("resultFuel").textContent =
-        `${trip.fuelRequired.toFixed(2)} ${trip.unit}`;
+        `${currentTrip.fuelRequired.toFixed(2)} ${currentTrip.unit}`;
+
 
     $("resultFuelCost").textContent =
-        money(trip.fuelCost);
+        money(
+            currentTrip.fuelCost
+        );
+
 
     $("resultCostKm").textContent =
         money(
-            trip.totalCost /
-            trip.distance
+
+            currentTrip.totalCost /
+            currentTrip.distance
+
         );
 
+
     $("resultTotal").textContent =
-        money(trip.totalCost);
+        money(
+            currentTrip.totalCost
+        );
+
 
     $("resultPerPerson").textContent =
-        money(trip.perPerson);
+        money(
+            currentTrip.perPerson
+        );
+
 
     $("baseFuel").textContent =
-        `${trip.baseFuel.toFixed(2)} ${trip.unit}`;
+        `${currentTrip.baseFuel.toFixed(2)} ${currentTrip.unit}`;
+
 
     $("reserveFuel").textContent =
-        `${trip.fuelRequired.toFixed(2)} ${trip.unit}`;
+        `${currentTrip.fuelRequired.toFixed(2)} ${currentTrip.unit}`;
 
+
+    updateEnergyTitle();
 
     updateTank();
 
@@ -782,47 +1116,111 @@ function displayTrip() {
 
 
     $("results")
-        .classList.remove("hidden");
+        .classList
+        .remove(
+            "hidden"
+        );
 
 
     $("results")
         .scrollIntoView({
-            behavior: "smooth"
-        });
 
+            behavior:
+                "smooth",
+
+            block:
+                "start"
+
+        });
 }
 
 
 // ======================================================
-// TANK
+// ENERGY TITLE
+// ======================================================
+
+function updateEnergyTitle() {
+
+    const title =
+        $("energyTitle");
+
+
+    if (!title) {
+        return;
+    }
+
+
+    const type =
+        $("fuelType").value;
+
+
+    if (
+        type ===
+        "electric"
+    ) {
+
+        title.textContent =
+            "Energy Required";
+    }
+
+    else if (
+        type ===
+        "cng"
+    ) {
+
+        title.textContent =
+            "CNG Required";
+    }
+
+    else {
+
+        title.textContent =
+            "Fuel Required";
+    }
+}
+
+
+// ======================================================
+// TANK STATUS
 // ======================================================
 
 function updateTank() {
+
+    const tankStatus =
+        $("tankStatus");
+
+
+    if (!tankStatus) {
+        return;
+    }
+
 
     if (
         $("fuelType").value ===
         "electric"
     ) {
 
-        $("tankStatus").textContent =
+        tankStatus.textContent =
             "Not applicable for EV";
 
         return;
-
     }
 
 
     const tank =
-        numberValue("tankCapacity");
+        numberValue(
+            "tankCapacity"
+        );
 
 
-    if (tank <= 0) {
+    if (
+        tank <= 0
+    ) {
 
-        $("tankStatus").textContent =
+        tankStatus.textContent =
             "Not provided";
 
         return;
-
     }
 
 
@@ -831,9 +1229,8 @@ function updateTank() {
         tank
     ) {
 
-        $("tankStatus").textContent =
+        tankStatus.textContent =
             "✓ Enough for trip";
-
     }
 
     else {
@@ -843,16 +1240,14 @@ function updateTank() {
             tank;
 
 
-        $("tankStatus").textContent =
+        tankStatus.textContent =
             `Need ${extra.toFixed(2)} ${currentTrip.unit} extra`;
-
     }
-
 }
 
 
 // ======================================================
-// BREAKDOWN
+// COST BREAKDOWN
 // ======================================================
 
 function renderBreakdown() {
@@ -861,71 +1256,98 @@ function renderBreakdown() {
         $("breakdown");
 
 
-    container.innerHTML = "";
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "";
 
 
     const total =
         currentTrip.totalCost;
 
 
-    Object.entries(
-        currentTrip.expenses
-    )
-    .forEach(
-        ([name, value]) => {
+    Object
+        .entries(
+            currentTrip.expenses
+        )
+        .forEach(
+            (
+                [
+                    name,
+                    value
+                ]
+            ) => {
 
-            if (value <= 0) {
-                return;
+                if (
+                    value <= 0
+                ) {
+                    return;
+                }
+
+
+                const percent =
+
+                    total > 0
+
+                    ?
+
+                    value /
+                    total *
+                    100
+
+                    :
+
+                    0;
+
+
+                const row =
+                    document
+                        .createElement(
+                            "div"
+                        );
+
+
+                row.className =
+                    "bar-row";
+
+
+                row.innerHTML = `
+
+                    <div class="bar-top">
+
+                        <span>
+                            ${name}
+                        </span>
+
+                        <span>
+                            ${money(value)}
+                            •
+                            ${percent.toFixed(0)}%
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-track">
+
+                        <div
+                            class="bar-fill"
+                            style="width:${percent}%"
+                        ></div>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(
+                    row
+                );
             }
-
-
-            const percent =
-                total > 0
-                ?
-                value / total * 100
-                :
-                0;
-
-
-            const row =
-                document.createElement("div");
-
-
-            row.className =
-                "bar-row";
-
-
-            row.innerHTML = `
-
-                <div class="bar-top">
-
-                    <span>${name}</span>
-
-                    <span>
-                        ${money(value)}
-                        •
-                        ${percent.toFixed(0)}%
-                    </span>
-
-                </div>
-
-                <div class="bar-track">
-
-                    <div
-                        class="bar-fill"
-                        style="width:${percent}%"
-                    ></div>
-
-                </div>
-
-            `;
-
-
-            container.appendChild(row);
-
-        }
-    );
-
+        );
 }
 
 
@@ -935,35 +1357,60 @@ function renderBreakdown() {
 
 function renderCabComparison() {
 
-    const cab =
-        numberValue("cabFare");
+    const section =
+        $("cabComparison");
 
 
-    if (cab <= 0) {
-
-        $("cabComparison")
-            .classList.add("hidden");
-
+    if (!section) {
         return;
-
     }
 
 
-    $("cabComparison")
-        .classList.remove("hidden");
+    const cab =
+        numberValue(
+            "cabFare"
+        );
+
+
+    if (
+        cab <= 0
+    ) {
+
+        section
+            .classList
+            .add(
+                "hidden"
+            );
+
+        return;
+    }
+
+
+    section
+        .classList
+        .remove(
+            "hidden"
+        );
 
 
     $("ownVehicleCost").textContent =
-        money(currentTrip.totalCost);
+        money(
+            currentTrip.totalCost
+        );
+
 
     $("cabCost").textContent =
-        money(cab);
+        money(
+            cab
+        );
 
 
     const difference =
         Math.abs(
+
             cab -
             currentTrip.totalCost
+
         );
 
 
@@ -974,7 +1421,6 @@ function renderCabComparison() {
 
         $("cabMessage").textContent =
             `🚗 Own vehicle saves approximately ${money(difference)}.`;
-
     }
 
     else if (
@@ -984,27 +1430,41 @@ function renderCabComparison() {
 
         $("cabMessage").textContent =
             `🚕 Cab saves approximately ${money(difference)}.`;
-
     }
 
     else {
 
         $("cabMessage").textContent =
             "Both options cost approximately the same.";
-
     }
-
 }
 
 
 // ======================================================
-// PASSENGER EMAIL
+// PASSENGER EMAIL SECTION
 // ======================================================
 
 function showPassengerSection() {
 
-    $("passengerEmailSection")
-        .classList.remove("hidden");
+    const section =
+        $("passengerEmailSection");
+
+
+    if (!section) {
+
+        console.error(
+            "Passenger email section not found."
+        );
+
+        return;
+    }
+
+
+    section
+        .classList
+        .remove(
+            "hidden"
+        );
 
 
     $("emailTotalCost").textContent =
@@ -1024,7 +1484,6 @@ function showPassengerSection() {
 
 
     createPassengerRows();
-
 }
 
 
@@ -1038,7 +1497,13 @@ function createPassengerRows() {
         $("passengerList");
 
 
-    container.innerHTML = "";
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "";
 
 
     for (
@@ -1048,7 +1513,10 @@ function createPassengerRows() {
     ) {
 
         const row =
-            document.createElement("div");
+            document
+                .createElement(
+                    "div"
+                );
 
 
         row.className =
@@ -1061,10 +1529,13 @@ function createPassengerRows() {
                 ${i}
             </div>
 
+
             <input
                 class="passenger-name"
+                type="text"
                 placeholder="Passenger ${i} name"
             >
+
 
             <input
                 class="passenger-email"
@@ -1072,29 +1543,44 @@ function createPassengerRows() {
                 placeholder="passenger${i}@email.com"
             >
 
+
             <button
                 class="send-passenger-btn"
                 type="button"
             >
-                Send ${money(currentTrip.perPerson)}
+
+                Send ${money(
+                    currentTrip.perPerson
+                )}
+
             </button>
 
         `;
 
 
-        row.querySelector(
-            ".send-passenger-btn"
-        )
-        .addEventListener(
-            "click",
-            () => sendReminder(row)
+        const sendButton =
+            row.querySelector(
+                ".send-passenger-btn"
+            );
+
+
+        sendButton
+            .addEventListener(
+                "click",
+                () => {
+
+                    sendReminder(
+                        row
+                    );
+
+                }
+            );
+
+
+        container.appendChild(
+            row
         );
-
-
-        container.appendChild(row);
-
     }
-
 }
 
 
@@ -1105,20 +1591,23 @@ function createPassengerRows() {
 function emailConfigured() {
 
     return (
-        EMAILJS_PUBLIC_KEY !==
-        "YOUR_PUBLIC_KEY"
+
+        typeof emailjs !==
+        "undefined"
 
         &&
 
-        EMAILJS_SERVICE_ID !==
-        "YOUR_SERVICE_ID"
+        EMAILJS_PUBLIC_KEY
 
         &&
 
-        EMAILJS_TEMPLATE_ID !==
-        "YOUR_TEMPLATE_ID"
+        EMAILJS_SERVICE_ID
+
+        &&
+
+        EMAILJS_TEMPLATE_ID
+
     );
-
 }
 
 
@@ -1129,8 +1618,9 @@ function emailConfigured() {
 function validEmail(email) {
 
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        .test(email);
-
+        .test(
+            email
+        );
 }
 
 
@@ -1140,18 +1630,22 @@ function validEmail(email) {
 
 function emailData(row) {
 
-    const name =
+    const passengerName =
+
         row
             .querySelector(
                 ".passenger-name"
             )
             .value
             .trim()
+
         ||
+
         "Friend";
 
 
-    const email =
+    const passengerEmail =
+
         row
             .querySelector(
                 ".passenger-email"
@@ -1160,25 +1654,38 @@ function emailData(row) {
             .trim();
 
 
-    const sender =
-        $("senderName").value.trim()
+    const senderName =
+
+        $("senderName")
+            .value
+            .trim()
+
         ||
+
         "Your Trip Organizer";
 
 
-    const payment =
-        $("paymentNote").value.trim()
+    const paymentNote =
+
+        $("paymentNote")
+            .value
+            .trim()
+
         ||
+
         "Please send your share whenever convenient.";
 
 
     return {
 
-        to_name: name,
+        to_name:
+            passengerName,
 
-        to_email: email,
+        to_email:
+            passengerEmail,
 
-        sender_name: sender,
+        sender_name:
+            senderName,
 
         from_location:
             currentTrip.from,
@@ -1190,19 +1697,74 @@ function emailData(row) {
             `${currentTrip.distance.toFixed(1)} KM`,
 
         total_trip_cost:
-            money(currentTrip.totalCost),
+            money(
+                currentTrip.totalCost
+            ),
 
         passenger_share:
-            money(currentTrip.perPerson),
+            money(
+                currentTrip.perPerson
+            ),
 
         payment_note:
-            payment,
+            paymentNote,
 
         message:
-            `Hi ${name}! Hope you enjoyed our trip from ${currentTrip.from} to ${currentTrip.to}. Your share of the trip expense is ${money(currentTrip.perPerson)}. Whenever convenient, please send your share so we can settle the trip expenses. Thank you!`
+            `Hi ${passengerName}, hope you enjoyed our trip from ${currentTrip.from} to ${currentTrip.to}. Your share is ${money(currentTrip.perPerson)}. Whenever convenient, please send your share. Thank you!`
 
     };
+}
 
+
+// ======================================================
+// EMAILJS ERROR MESSAGE
+// ======================================================
+
+function getEmailError(error) {
+
+    if (!error) {
+
+        return "Unknown EmailJS error.";
+    }
+
+
+    if (
+        typeof error ===
+        "string"
+    ) {
+
+        return error;
+    }
+
+
+    if (
+        error.text
+    ) {
+
+        return error.text;
+    }
+
+
+    if (
+        error.message
+    ) {
+
+        return error.message;
+    }
+
+
+    try {
+
+        return JSON.stringify(
+            error
+        );
+
+    }
+
+    catch {
+
+        return "Unknown EmailJS error.";
+    }
 }
 
 
@@ -1212,20 +1774,36 @@ function emailData(row) {
 
 async function sendReminder(row) {
 
-    if (!emailConfigured()) {
+    if (
+        !currentTrip
+    ) {
 
         showEmailStatus(
-            "EmailJS is not configured yet.",
+            "Calculate the trip first.",
             false
         );
 
         return;
+    }
 
+
+    if (
+        !emailConfigured()
+    ) {
+
+        showEmailStatus(
+            "EmailJS is not configured correctly.",
+            false
+        );
+
+        return;
     }
 
 
     const data =
-        emailData(row);
+        emailData(
+            row
+        );
 
 
     if (
@@ -1240,21 +1818,23 @@ async function sendReminder(row) {
         );
 
         return;
-
     }
 
 
     const button =
-        row.querySelector(
-            ".send-passenger-btn"
-        );
+        row
+            .querySelector(
+                ".send-passenger-btn"
+            );
 
 
     const oldText =
         button.textContent;
 
 
-    button.disabled = true;
+    button.disabled =
+        true;
+
 
     button.textContent =
         "Sending...";
@@ -1262,14 +1842,21 @@ async function sendReminder(row) {
 
     try {
 
-        await emailjs.send(
+        const response =
+            await emailjs.send(
 
-            EMAILJS_SERVICE_ID,
+                EMAILJS_SERVICE_ID,
 
-            EMAILJS_TEMPLATE_ID,
+                EMAILJS_TEMPLATE_ID,
 
-            data
+                data
 
+            );
+
+
+        console.log(
+            "EMAILJS SUCCESS:",
+            response
         );
 
 
@@ -1287,7 +1874,7 @@ async function sendReminder(row) {
     catch (error) {
 
         console.error(
-            "EmailJS error:",
+            "EMAILJS ERROR:",
             error
         );
 
@@ -1297,17 +1884,22 @@ async function sendReminder(row) {
 
 
         showEmailStatus(
-            "Email failed. Check your EmailJS settings.",
+            `Email failed: ${
+                getEmailError(
+                    error
+                )
+            }`,
             false
         );
-
     }
 
 
     setTimeout(
         () => {
 
-            button.disabled = false;
+            button.disabled =
+                false;
+
 
             button.textContent =
                 oldText;
@@ -1315,148 +1907,233 @@ async function sendReminder(row) {
         },
         2000
     );
-
 }
 
 
 // ======================================================
-// SEND ALL
+// SEND ALL EMAILS
 // ======================================================
 
-$("sendAllBtn")
-    .addEventListener(
-        "click",
-        async () => {
+async function sendAllReminders() {
 
-            if (!emailConfigured()) {
+    if (
+        !currentTrip
+    ) {
 
-                showEmailStatus(
-                    "Configure EmailJS before sending emails.",
-                    false
-                );
+        showEmailStatus(
+            "Calculate the trip first.",
+            false
+        );
 
-                return;
-
-            }
+        return;
+    }
 
 
-            const rows = [
+    if (
+        !emailConfigured()
+    ) {
 
-                ...document
-                    .querySelectorAll(
-                        ".passenger-email-row"
-                    )
+        showEmailStatus(
+            "EmailJS is not configured correctly.",
+            false
+        );
 
-            ];
-
-
-            const validRows =
-                rows.filter(
-                    row => {
-
-                        const email =
-                            row
-                                .querySelector(
-                                    ".passenger-email"
-                                )
-                                .value
-                                .trim();
+        return;
+    }
 
 
-                        return validEmail(
-                            email
-                        );
+    const rows = [
 
-                    }
-                );
+        ...document
+            .querySelectorAll(
+                ".passenger-email-row"
+            )
 
-
-            if (
-                validRows.length ===
-                0
-            ) {
-
-                showEmailStatus(
-                    "Enter at least one valid passenger email.",
-                    false
-                );
-
-                return;
-
-            }
+    ];
 
 
-            const button =
-                $("sendAllBtn");
+    const validRows =
+        rows.filter(
+            (row) => {
 
-
-            button.disabled =
-                true;
-
-
-            let sent = 0;
-
-
-            for (
-                let i = 0;
-                i < validRows.length;
-                i++
-            ) {
-
-                showEmailStatus(
-                    `Sending ${i + 1} of ${validRows.length}...`,
-                    true
-                );
-
-
-                try {
-
-                    await emailjs.send(
-
-                        EMAILJS_SERVICE_ID,
-
-                        EMAILJS_TEMPLATE_ID,
-
-                        emailData(
-                            validRows[i]
+                const email =
+                    row
+                        .querySelector(
+                            ".passenger-email"
                         )
-
-                    );
-
-
-                    sent++;
-
-                }
-
-                catch (error) {
-
-                    console.error(error);
-
-                }
+                        .value
+                        .trim();
 
 
-                await new Promise(
-                    resolve =>
-                        setTimeout(
-                            resolve,
-                            1100
-                        )
+                return validEmail(
+                    email
                 );
-
             }
+        );
 
 
-            button.disabled =
-                false;
+    if (
+        validRows.length ===
+        0
+    ) {
+
+        showEmailStatus(
+            "Enter at least one valid passenger email.",
+            false
+        );
+
+        return;
+    }
 
 
-            showEmailStatus(
-                `${sent} of ${validRows.length} reminders sent successfully.`,
-                sent > 0
+    const button =
+        $("sendAllBtn");
+
+
+    const oldText =
+        button.textContent;
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        "Sending reminders...";
+
+
+    let sent =
+        0;
+
+
+    const failures =
+        [];
+
+
+    for (
+        let i = 0;
+        i <
+        validRows.length;
+        i++
+    ) {
+
+        const data =
+            emailData(
+                validRows[i]
             );
 
+
+        showEmailStatus(
+            `Sending ${i + 1} of ${validRows.length} to ${data.to_email}...`,
+            true
+        );
+
+
+        try {
+
+            const response =
+                await emailjs.send(
+
+                    EMAILJS_SERVICE_ID,
+
+                    EMAILJS_TEMPLATE_ID,
+
+                    data
+
+                );
+
+
+            console.log(
+                `EMAIL ${i + 1} SUCCESS:`,
+                response
+            );
+
+
+            sent++;
+
         }
+
+        catch (error) {
+
+            console.error(
+                `EMAIL ${i + 1} ERROR:`,
+                error
+            );
+
+
+            failures.push({
+
+                email:
+                    data.to_email,
+
+                error:
+                    getEmailError(
+                        error
+                    )
+
+            });
+        }
+
+
+        if (
+            i <
+            validRows.length -
+            1
+        ) {
+
+            await new Promise(
+                (resolve) =>
+
+                    setTimeout(
+                        resolve,
+                        1100
+                    )
+            );
+        }
+    }
+
+
+    button.disabled =
+        false;
+
+
+    button.textContent =
+        oldText;
+
+
+    if (
+        failures.length ===
+        0
+    ) {
+
+        showEmailStatus(
+            `All ${sent} reminder(s) sent successfully.`,
+            true
+        );
+
+        return;
+    }
+
+
+    if (
+        sent ===
+        0
+    ) {
+
+        showEmailStatus(
+            `Email failed: ${failures[0].error}`,
+            false
+        );
+
+        return;
+    }
+
+
+    showEmailStatus(
+        `${sent} sent, ${failures.length} failed. ${failures[0].email}: ${failures[0].error}`,
+        false
     );
+}
 
 
 // ======================================================
@@ -1472,6 +2149,16 @@ function showEmailStatus(
         $("emailStatus");
 
 
+    if (!box) {
+
+        console.log(
+            message
+        );
+
+        return;
+    }
+
+
     box.classList.remove(
         "hidden",
         "success",
@@ -1480,21 +2167,31 @@ function showEmailStatus(
 
 
     box.classList.add(
+
         success
+
         ?
+
         "success"
+
         :
+
         "error"
+
     );
 
 
     box.textContent =
-        success
-        ?
-        `✓ ${message}`
-        :
-        `⚠ ${message}`;
 
+        success
+
+        ?
+
+        `✓ ${message}`
+
+        :
+
+        `⚠ ${message}`;
 }
 
 
@@ -1507,13 +2204,18 @@ function getHistory() {
     try {
 
         return (
+
             JSON.parse(
-                localStorage.getItem(
-                    "fuelwiseHistory"
-                )
+                localStorage
+                    .getItem(
+                        "fuelwiseHistory"
+                    )
             )
+
             ||
+
             []
+
         );
 
     }
@@ -1521,13 +2223,16 @@ function getHistory() {
     catch {
 
         return [];
-
     }
-
 }
 
 
 function saveTrip() {
+
+    if (!currentTrip) {
+        return;
+    }
+
 
     const history =
         getHistory();
@@ -1561,14 +2266,16 @@ function saveTrip() {
         "fuelwiseHistory",
 
         JSON.stringify(
-            history.slice(0, 5)
+            history.slice(
+                0,
+                5
+            )
         )
 
     );
 
 
     renderHistory();
-
 }
 
 
@@ -1578,11 +2285,17 @@ function renderHistory() {
         $("recentTrips");
 
 
+    if (!container) {
+        return;
+    }
+
+
     const history =
         getHistory();
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+        "";
 
 
     if (
@@ -1607,17 +2320,17 @@ function renderHistory() {
         `;
 
         return;
-
     }
 
 
     history.forEach(
-        trip => {
+        (trip) => {
 
             const row =
-                document.createElement(
-                    "div"
-                );
+                document
+                    .createElement(
+                        "div"
+                    );
 
 
             row.className =
@@ -1631,11 +2344,22 @@ function renderHistory() {
                 </strong>
 
                 <span>
-                    ${Number(trip.distance).toFixed(0)} KM
+
+                    ${Number(
+                        trip.distance
+                    ).toFixed(0)}
+                    KM
+
                     •
-                    ${money(trip.total)}
+
+                    ${money(
+                        trip.total
+                    )}
+
                     •
+
                     ${trip.date || ""}
+
                 </span>
 
             `;
@@ -1644,10 +2368,8 @@ function renderHistory() {
             container.appendChild(
                 row
             );
-
         }
     );
-
 }
 
 
@@ -1655,190 +2377,315 @@ function renderHistory() {
 // FUEL TYPE
 // ======================================================
 
-$("fuelType")
-    .addEventListener(
-        "change",
-        () => {
+function updateFuelLabels() {
 
-            const type =
-                $("fuelType").value;
+    const type =
+        $("fuelType").value;
 
 
-            if (
-                type === "petrol"
-                ||
-                type === "diesel"
-            ) {
+    if (
+        type ===
+        "petrol"
 
-                $("mileageLabel").textContent =
-                    "Mileage (KM/L)";
+        ||
 
-                $("fuelPriceLabel").textContent =
-                    "Fuel Price (₹/L)";
+        type ===
+        "diesel"
+    ) {
 
-            }
-
-            else if (
-                type === "cng"
-            ) {
-
-                $("mileageLabel").textContent =
-                    "Efficiency (KM/KG)";
-
-                $("fuelPriceLabel").textContent =
-                    "CNG Price (₹/KG)";
-
-            }
-
-            else {
-
-                $("mileageLabel").textContent =
-                    "Efficiency (KM/kWh)";
-
-                $("fuelPriceLabel").textContent =
-                    "Electricity Cost (₹/kWh)";
-
-            }
-
-        }
-    );
+        $("mileageLabel").textContent =
+            "Mileage (KM/L)";
 
 
-// ======================================================
-// PASSENGER + / -
-// ======================================================
+        $("fuelPriceLabel").textContent =
+            "Fuel Price (₹/L)";
+    }
 
-$("plusPassenger")
-    .addEventListener(
-        "click",
-        () => {
+    else if (
+        type ===
+        "cng"
+    ) {
 
-            let value =
-                Number(
-                    $("passengers").value
-                ) || 1;
+        $("mileageLabel").textContent =
+            "Efficiency (KM/KG)";
 
 
-            $("passengers").value =
-                Math.min(
-                    20,
-                    value + 1
-                );
+        $("fuelPriceLabel").textContent =
+            "CNG Price (₹/KG)";
+    }
 
-        }
-    );
+    else {
 
-
-$("minusPassenger")
-    .addEventListener(
-        "click",
-        () => {
-
-            let value =
-                Number(
-                    $("passengers").value
-                ) || 1;
+        $("mileageLabel").textContent =
+            "Efficiency (KM/kWh)";
 
 
-            $("passengers").value =
-                Math.max(
-                    1,
-                    value - 1
-                );
-
-        }
-    );
+        $("fuelPriceLabel").textContent =
+            "Electricity Cost (₹/kWh)";
+    }
+}
 
 
 // ======================================================
-// EVENTS
+// EVENT LISTENERS
 // ======================================================
 
-$("fromCity")
-    .addEventListener(
-        "change",
-        updateRouteStatus
-    );
+function setupEvents() {
+
+    const calculateButton =
+        $("calculateBtn");
 
 
-$("toCity")
-    .addEventListener(
-        "change",
-        updateRouteStatus
-    );
+    if (calculateButton) {
 
-
-$("swapBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            const from =
-                $("fromCity").value;
-
-
-            $("fromCity").value =
-                $("toCity").value;
-
-
-            $("toCity").value =
-                from;
-
-
-            const customFrom =
-                $("customFrom").value;
-
-
-            $("customFrom").value =
-                $("customTo").value;
-
-
-            $("customTo").value =
-                customFrom;
-
-
-            updateRouteStatus();
-
-        }
-    );
-
-
-$("calculateBtn")
-    .addEventListener(
-        "click",
-        calculateTrip
-    );
-
-
-$("printBtn")
-    .addEventListener(
-        "click",
-        () => window.print()
-    );
-
-
-$("clearHistory")
-    .addEventListener(
-        "click",
-        () => {
-
-            localStorage.removeItem(
-                "fuelwiseHistory"
+        calculateButton
+            .addEventListener(
+                "click",
+                calculateTrip
             );
+    }
 
 
-            renderHistory();
+    const fromCity =
+        $("fromCity");
 
-        }
-    );
+
+    if (fromCity) {
+
+        fromCity
+            .addEventListener(
+                "change",
+                updateRouteStatus
+            );
+    }
+
+
+    const toCity =
+        $("toCity");
+
+
+    if (toCity) {
+
+        toCity
+            .addEventListener(
+                "change",
+                updateRouteStatus
+            );
+    }
+
+
+    const swapButton =
+        $("swapBtn");
+
+
+    if (swapButton) {
+
+        swapButton
+            .addEventListener(
+                "click",
+                () => {
+
+                    const oldFrom =
+                        $("fromCity").value;
+
+
+                    $("fromCity").value =
+                        $("toCity").value;
+
+
+                    $("toCity").value =
+                        oldFrom;
+
+
+                    const customFrom =
+                        $("customFrom");
+
+
+                    const customTo =
+                        $("customTo");
+
+
+                    if (
+                        customFrom &&
+                        customTo
+                    ) {
+
+                        const oldCustomFrom =
+                            customFrom.value;
+
+
+                        customFrom.value =
+                            customTo.value;
+
+
+                        customTo.value =
+                            oldCustomFrom;
+                    }
+
+
+                    updateRouteStatus();
+                }
+            );
+    }
+
+
+    const plusPassenger =
+        $("plusPassenger");
+
+
+    if (plusPassenger) {
+
+        plusPassenger
+            .addEventListener(
+                "click",
+                () => {
+
+                    const current =
+                        Number(
+                            $("passengers").value
+                        )
+                        ||
+                        1;
+
+
+                    $("passengers").value =
+                        Math.min(
+                            20,
+                            current + 1
+                        );
+                }
+            );
+    }
+
+
+    const minusPassenger =
+        $("minusPassenger");
+
+
+    if (minusPassenger) {
+
+        minusPassenger
+            .addEventListener(
+                "click",
+                () => {
+
+                    const current =
+                        Number(
+                            $("passengers").value
+                        )
+                        ||
+                        1;
+
+
+                    $("passengers").value =
+                        Math.max(
+                            1,
+                            current - 1
+                        );
+                }
+            );
+    }
+
+
+    const sendAllButton =
+        $("sendAllBtn");
+
+
+    if (sendAllButton) {
+
+        sendAllButton
+            .addEventListener(
+                "click",
+                sendAllReminders
+            );
+    }
+
+
+    const printButton =
+        $("printBtn");
+
+
+    if (printButton) {
+
+        printButton
+            .addEventListener(
+                "click",
+                () => {
+
+                    window.print();
+
+                }
+            );
+    }
+
+
+    const clearHistory =
+        $("clearHistory");
+
+
+    if (clearHistory) {
+
+        clearHistory
+            .addEventListener(
+                "click",
+                () => {
+
+                    localStorage.removeItem(
+                        "fuelwiseHistory"
+                    );
+
+
+                    renderHistory();
+
+                }
+            );
+    }
+
+
+    const fuelType =
+        $("fuelType");
+
+
+    if (fuelType) {
+
+        fuelType
+            .addEventListener(
+                "change",
+                updateFuelLabels
+            );
+    }
+}
 
 
 // ======================================================
 // START APPLICATION
 // ======================================================
 
-populateCities();
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-updateRouteStatus();
+        console.log(
+            "Starting FuelWise India..."
+        );
 
-renderHistory();
+
+        initializeEmailJS();
+
+        populateCities();
+
+        setupEvents();
+
+        updateRouteStatus();
+
+        updateFuelLabels();
+
+        renderHistory();
+
+
+        console.log(
+            "FuelWise India loaded successfully."
+        );
+
+    }
+);
