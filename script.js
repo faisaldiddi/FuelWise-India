@@ -1,348 +1,167 @@
-// ============================================
+// ======================================================
 // FUELWISE INDIA
-// UPDATED CITY DISTANCE ENGINE
-// ============================================
+// ======================================================
 
 
-// ============================================
-// KNOWN APPROXIMATE ROAD DISTANCES
-// ============================================
-
-const cityDistances = {
-
-    Mumbai: {
-        Pune: 150,
-        Nashik: 170,
-        Goa: 590,
-        Ahmedabad: 525,
-        Surat: 285,
-        Nagpur: 815,
-        Indore: 585,
-        Hyderabad: 710,
-        Bengaluru: 985,
-        Vadodara: 415,
-        Rajkot: 705
-    },
-
-    Pune: {
-        Mumbai: 150,
-        Nashik: 210,
-        Goa: 450,
-        Hyderabad: 560,
-        Bengaluru: 840,
-        Nagpur: 720,
-        Aurangabad: 235,
-        Kolhapur: 230,
-        Satara: 115
-    },
-
-    Delhi: {
-        Jaipur: 280,
-        Agra: 240,
-        Chandigarh: 250,
-        Dehradun: 255,
-        Lucknow: 555,
-        Amritsar: 450,
-        Shimla: 350,
-        Haridwar: 220,
-        Gurugram: 30,
-        Noida: 25
-    },
-
-    Jaipur: {
-        Delhi: 280,
-        Agra: 240,
-        Udaipur: 395,
-        Jodhpur: 335,
-        Ajmer: 135,
-        Kota: 250
-    },
-
-    Bengaluru: {
-        Mysuru: 145,
-        Chennai: 350,
-        Hyderabad: 570,
-        Goa: 560,
-        Coimbatore: 365,
-        Mangaluru: 350,
-        Pune: 840,
-        Mumbai: 985
-    },
-
-    Chennai: {
-        Bengaluru: 350,
-        Pondicherry: 155,
-        Coimbatore: 505,
-        Madurai: 460,
-        Hyderabad: 630
-    },
-
-    Hyderabad: {
-        Bengaluru: 570,
-        Chennai: 630,
-        Pune: 560,
-        Mumbai: 710,
-        Nagpur: 500,
-        Vijayawada: 275,
-        Visakhapatnam: 620
-    },
-
-    Kolkata: {
-        Bhubaneswar: 440,
-        Patna: 585,
-        Ranchi: 400,
-        Siliguri: 560,
-        Varanasi: 680
-    },
-
-    Ahmedabad: {
-        Mumbai: 525,
-        Vadodara: 110,
-        Surat: 265,
-        Udaipur: 260,
-        Rajkot: 215,
-        Gandhinagar: 30
-    },
-
-    Goa: {
-        Mumbai: 590,
-        Pune: 450,
-        Bengaluru: 560,
-        Mangaluru: 365
-    },
-
-    Lucknow: {
-        Delhi: 555,
-        Kanpur: 90,
-        Varanasi: 320,
-        Prayagraj: 200
-    },
-
-    Kochi: {
-        Thiruvananthapuram: 205,
-        Coimbatore: 190,
-        Munnar: 130,
-        Kozhikode: 185
-    },
-
-    Indore: {
-        Mumbai: 585,
-        Bhopal: 195,
-        Ujjain: 55,
-        Ahmedabad: 395
-    }
-
-};
-
-
-// ============================================
+// ======================================================
 // CITY COORDINATES
-// USED FOR FALLBACK DISTANCE ESTIMATION
-// ============================================
+// ======================================================
 
 const indianCities = {
 
-    Mumbai: { lat: 19.0760, lon: 72.8777 },
-    Pune: { lat: 18.5204, lon: 73.8567 },
-    Delhi: { lat: 28.6139, lon: 77.2090 },
-    Jaipur: { lat: 26.9124, lon: 75.7873 },
-    Agra: { lat: 27.1767, lon: 78.0081 },
+    Mumbai: [19.0760, 72.8777],
+    Pune: [18.5204, 73.8567],
+    Delhi: [28.6139, 77.2090],
+    Jaipur: [26.9124, 75.7873],
+    Agra: [27.1767, 78.0081],
 
-    Ahmedabad: { lat: 23.0225, lon: 72.5714 },
-    Surat: { lat: 21.1702, lon: 72.8311 },
-    Vadodara: { lat: 22.3072, lon: 73.1812 },
-    Rajkot: { lat: 22.3039, lon: 70.8022 },
-    Gandhinagar: { lat: 23.2156, lon: 72.6369 },
-    Bhavnagar: { lat: 21.7645, lon: 72.1519 },
-    Jamnagar: { lat: 22.4707, lon: 70.0577 },
-    Junagadh: { lat: 21.5222, lon: 70.4579 },
-    Bharuch: { lat: 21.7051, lon: 72.9959 },
-    Vapi: { lat: 20.3893, lon: 72.9106 },
-    Anand: { lat: 22.5645, lon: 72.9289 },
-    Bhuj: { lat: 23.2419, lon: 69.6669 },
+    Ahmedabad: [23.0225, 72.5714],
+    Surat: [21.1702, 72.8311],
+    Vadodara: [22.3072, 73.1812],
+    Rajkot: [22.3039, 70.8022],
+    Gandhinagar: [23.2156, 72.6369],
 
-    Nashik: { lat: 19.9975, lon: 73.7898 },
-    Nagpur: { lat: 21.1458, lon: 79.0882 },
-    Thane: { lat: 19.2183, lon: 72.9781 },
-    "Navi Mumbai": { lat: 19.0330, lon: 73.0297 },
-    Aurangabad: { lat: 19.8762, lon: 75.3433 },
-    Kolhapur: { lat: 16.7050, lon: 74.2433 },
-    Solapur: { lat: 17.6599, lon: 75.9064 },
-    Sangli: { lat: 16.8524, lon: 74.5815 },
-    Satara: { lat: 17.6805, lon: 74.0183 },
-    Ratnagiri: { lat: 16.9902, lon: 73.3120 },
-    Amravati: { lat: 20.9374, lon: 77.7796 },
-    Akola: { lat: 20.7002, lon: 77.0082 },
-    Latur: { lat: 18.4088, lon: 76.5604 },
-    Nanded: { lat: 19.1383, lon: 77.3210 },
+    Nashik: [19.9975, 73.7898],
+    Nagpur: [21.1458, 79.0882],
+    Thane: [19.2183, 72.9781],
+    "Navi Mumbai": [19.0330, 73.0297],
+    Aurangabad: [19.8762, 75.3433],
+    Kolhapur: [16.7050, 74.2433],
+    Solapur: [17.6599, 75.9064],
+    Satara: [17.6805, 74.0183],
 
-    Goa: { lat: 15.2993, lon: 74.1240 },
+    Goa: [15.2993, 74.1240],
 
-    Bengaluru: { lat: 12.9716, lon: 77.5946 },
-    Mysuru: { lat: 12.2958, lon: 76.6394 },
-    Mangaluru: { lat: 12.9141, lon: 74.8560 },
+    Bengaluru: [12.9716, 77.5946],
+    Mysuru: [12.2958, 76.6394],
+    Mangaluru: [12.9141, 74.8560],
 
-    Chennai: { lat: 13.0827, lon: 80.2707 },
-    Pondicherry: { lat: 11.9416, lon: 79.8083 },
-    Coimbatore: { lat: 11.0168, lon: 76.9558 },
-    Madurai: { lat: 9.9252, lon: 78.1198 },
+    Chennai: [13.0827, 80.2707],
+    Pondicherry: [11.9416, 79.8083],
+    Coimbatore: [11.0168, 76.9558],
+    Madurai: [9.9252, 78.1198],
 
-    Hyderabad: { lat: 17.3850, lon: 78.4867 },
-    Vijayawada: { lat: 16.5062, lon: 80.6480 },
-    Visakhapatnam: { lat: 17.6868, lon: 83.2185 },
+    Hyderabad: [17.3850, 78.4867],
+    Vijayawada: [16.5062, 80.6480],
+    Visakhapatnam: [17.6868, 83.2185],
 
-    Kolkata: { lat: 22.5726, lon: 88.3639 },
-    Bhubaneswar: { lat: 20.2961, lon: 85.8245 },
-    Patna: { lat: 25.5941, lon: 85.1376 },
-    Ranchi: { lat: 23.3441, lon: 85.3096 },
-    Siliguri: { lat: 26.7271, lon: 88.3953 },
-    Varanasi: { lat: 25.3176, lon: 82.9739 },
+    Kolkata: [22.5726, 88.3639],
+    Bhubaneswar: [20.2961, 85.8245],
+    Patna: [25.5941, 85.1376],
+    Ranchi: [23.3441, 85.3096],
+    Siliguri: [26.7271, 88.3953],
 
-    Lucknow: { lat: 26.8467, lon: 80.9462 },
-    Kanpur: { lat: 26.4499, lon: 80.3319 },
-    Prayagraj: { lat: 25.4358, lon: 81.8463 },
+    Varanasi: [25.3176, 82.9739],
+    Lucknow: [26.8467, 80.9462],
+    Kanpur: [26.4499, 80.3319],
+    Prayagraj: [25.4358, 81.8463],
 
-    Chandigarh: { lat: 30.7333, lon: 76.7794 },
-    Dehradun: { lat: 30.3165, lon: 78.0322 },
-    Haridwar: { lat: 29.9457, lon: 78.1642 },
-    Amritsar: { lat: 31.6340, lon: 74.8723 },
-    Shimla: { lat: 31.1048, lon: 77.1734 },
-    Manali: { lat: 32.2396, lon: 77.1887 },
+    Chandigarh: [30.7333, 76.7794],
+    Dehradun: [30.3165, 78.0322],
+    Haridwar: [29.9457, 78.1642],
+    Amritsar: [31.6340, 74.8723],
+    Shimla: [31.1048, 77.1734],
+    Manali: [32.2396, 77.1887],
 
-    Gurugram: { lat: 28.4595, lon: 77.0266 },
-    Noida: { lat: 28.5355, lon: 77.3910 },
-    Faridabad: { lat: 28.4089, lon: 77.3178 },
+    Gurugram: [28.4595, 77.0266],
+    Noida: [28.5355, 77.3910],
+    Faridabad: [28.4089, 77.3178],
 
-    Udaipur: { lat: 24.5854, lon: 73.7125 },
-    Jodhpur: { lat: 26.2389, lon: 73.0243 },
-    Ajmer: { lat: 26.4499, lon: 74.6399 },
-    Kota: { lat: 25.2138, lon: 75.8648 },
-    Bikaner: { lat: 28.0229, lon: 73.3119 },
+    Udaipur: [24.5854, 73.7125],
+    Jodhpur: [26.2389, 73.0243],
+    Ajmer: [26.4499, 74.6399],
+    Kota: [25.2138, 75.8648],
 
-    Indore: { lat: 22.7196, lon: 75.8577 },
-    Bhopal: { lat: 23.2599, lon: 77.4126 },
-    Ujjain: { lat: 23.1765, lon: 75.7885 },
+    Indore: [22.7196, 75.8577],
+    Bhopal: [23.2599, 77.4126],
+    Ujjain: [23.1765, 75.7885],
 
-    Kochi: { lat: 9.9312, lon: 76.2673 },
-    Thiruvananthapuram: { lat: 8.5241, lon: 76.9366 },
-    Kozhikode: { lat: 11.2588, lon: 75.7804 },
-    Munnar: { lat: 10.0889, lon: 77.0595 }
+    Kochi: [9.9312, 76.2673],
+    Thiruvananthapuram: [8.5241, 76.9366],
+    Kozhikode: [11.2588, 75.7804],
+    Munnar: [10.0889, 77.0595]
+
 };
 
 
-// ============================================
-// CITY OPTIONS
-// ============================================
+// ======================================================
+// KNOWN ROAD DISTANCES
+// ======================================================
 
-const cities = [
-    "Select City",
-    ...Object.keys(indianCities).sort(),
-    "Custom Location"
-];
+const knownDistances = {
 
+    "Mumbai|Pune": 150,
+    "Mumbai|Nashik": 170,
+    "Mumbai|Surat": 285,
+    "Mumbai|Ahmedabad": 525,
+    "Mumbai|Goa": 590,
+    "Mumbai|Indore": 585,
+    "Mumbai|Hyderabad": 710,
+    "Mumbai|Nagpur": 815,
+    "Mumbai|Bengaluru": 985,
 
-// ============================================
-// ELEMENTS
-// ============================================
+    "Pune|Goa": 450,
+    "Pune|Nashik": 210,
+    "Pune|Aurangabad": 235,
+    "Pune|Kolhapur": 230,
+    "Pune|Satara": 115,
+    "Pune|Hyderabad": 560,
+    "Pune|Bengaluru": 840,
 
-const fromCity = document.getElementById("fromCity");
-const toCity = document.getElementById("toCity");
+    "Delhi|Agra": 240,
+    "Delhi|Jaipur": 280,
+    "Delhi|Chandigarh": 250,
+    "Delhi|Dehradun": 255,
+    "Delhi|Lucknow": 555,
+    "Delhi|Amritsar": 450,
+    "Delhi|Shimla": 350,
+    "Delhi|Haridwar": 220,
 
-const swapBtn = document.getElementById("swapBtn");
+    "Ahmedabad|Vadodara": 110,
+    "Ahmedabad|Surat": 265,
+    "Ahmedabad|Udaipur": 260,
+    "Ahmedabad|Rajkot": 215,
 
-const customLocationBox =
-    document.getElementById("customLocationBox");
+    "Bengaluru|Mysuru": 145,
+    "Bengaluru|Chennai": 350,
+    "Bengaluru|Hyderabad": 570,
+    "Bengaluru|Goa": 560,
 
-const customFrom =
-    document.getElementById("customFrom");
+    "Chennai|Pondicherry": 155,
+    "Chennai|Coimbatore": 505,
+    "Chennai|Madurai": 460,
 
-const customTo =
-    document.getElementById("customTo");
+    "Hyderabad|Nagpur": 500,
+    "Hyderabad|Vijayawada": 275,
 
-const customDistance =
-    document.getElementById("customDistance");
+    "Kolkata|Bhubaneswar": 440,
+    "Kolkata|Patna": 585,
+    "Kolkata|Ranchi": 400,
 
-const distanceInfo =
-    document.getElementById("distanceInfo");
+    "Lucknow|Kanpur": 90,
+    "Lucknow|Varanasi": 320,
 
-const tripType =
-    document.getElementById("tripType");
+    "Indore|Bhopal": 195,
+    "Indore|Ujjain": 55,
 
-const vehicleType =
-    document.getElementById("vehicleType");
+    "Kochi|Munnar": 130,
+    "Kochi|Coimbatore": 190
 
-const fuelType =
-    document.getElementById("fuelType");
-
-const mileage =
-    document.getElementById("mileage");
-
-const fuelPrice =
-    document.getElementById("fuelPrice");
-
-const passengers =
-    document.getElementById("passengers");
-
-const reserve =
-    document.getElementById("reserve");
-
-const tankCapacity =
-    document.getElementById("tankCapacity");
-
-const cabFare =
-    document.getElementById("cabFare");
-
-const toll =
-    document.getElementById("toll");
-
-const parking =
-    document.getElementById("parking");
-
-const food =
-    document.getElementById("food");
-
-const hotel =
-    document.getElementById("hotel");
-
-const other =
-    document.getElementById("other");
-
-const calculateBtn =
-    document.getElementById("calculateBtn");
-
-const results =
-    document.getElementById("results");
-
-const errorMessage =
-    document.getElementById("errorMessage");
-
-const mileageLabel =
-    document.getElementById("mileageLabel");
-
-const mileageUnit =
-    document.getElementById("mileageUnit");
-
-const fuelPriceLabel =
-    document.getElementById("fuelPriceLabel");
-
-const priceUnit =
-    document.getElementById("priceUnit");
-
-const minusPassenger =
-    document.getElementById("minusPassenger");
-
-const plusPassenger =
-    document.getElementById("plusPassenger");
-
-const clearHistory =
-    document.getElementById("clearHistory");
+};
 
 
-// ============================================
-// CURRENCY
-// ============================================
+// ======================================================
+// HELPERS
+// ======================================================
 
-const currencyFormatter =
+const $ = id =>
+    document.getElementById(id);
+
+
+let currentTrip = null;
+
+
+const formatter =
     new Intl.NumberFormat(
         "en-IN",
         {
@@ -355,753 +174,577 @@ const currencyFormatter =
 
 function money(value) {
 
-    return currencyFormatter.format(
+    return formatter.format(
         Number(value) || 0
     );
+
 }
 
 
-// ============================================
+function numberValue(id) {
+
+    return Math.max(
+        0,
+        Number($(id).value) || 0
+    );
+
+}
+
+
+// ======================================================
 // POPULATE CITIES
-// ============================================
+// ======================================================
 
 function populateCities() {
 
-    cities.forEach(city => {
-
-        const fromOption =
-            document.createElement("option");
-
-        fromOption.value = city;
-        fromOption.textContent = city;
-
-        fromCity.appendChild(fromOption);
+    const options = [
+        "Select City",
+        ...Object.keys(indianCities).sort(),
+        "Custom Location"
+    ];
 
 
-        const toOption =
-            document.createElement("option");
+    ["fromCity", "toCity"]
+        .forEach(id => {
 
-        toOption.value = city;
-        toOption.textContent = city;
-
-        toCity.appendChild(toOption);
-
-    });
+            const select =
+                $(id);
 
 
-    fromCity.value = "Mumbai";
-    toCity.value = "Pune";
+            options.forEach(city => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    city;
+
+
+                option.textContent =
+                    city;
+
+
+                select.appendChild(
+                    option
+                );
+
+            });
+
+        });
+
+
+    $("fromCity").value =
+        "Mumbai";
+
+
+    $("toCity").value =
+        "Pune";
+
 }
 
 
-populateCities();
+// ======================================================
+// DISTANCE ENGINE
+// ======================================================
+
+function toRadians(value) {
+
+    return value *
+        Math.PI /
+        180;
+
+}
 
 
-// ============================================
-// HAVERSINE DISTANCE
-// ============================================
+function straightDistance(a, b) {
 
-function haversineDistance(city1, city2) {
+    const earth =
+        6371;
 
-    const R = 6371;
 
     const lat1 =
-        city1.lat * Math.PI / 180;
+        toRadians(a[0]);
+
 
     const lat2 =
-        city2.lat * Math.PI / 180;
-
-    const deltaLat =
-        (
-            city2.lat -
-            city1.lat
-        ) * Math.PI / 180;
-
-    const deltaLon =
-        (
-            city2.lon -
-            city1.lon
-        ) * Math.PI / 180;
+        toRadians(b[0]);
 
 
-    const a =
-        Math.sin(deltaLat / 2) *
-        Math.sin(deltaLat / 2)
+    const dLat =
+        toRadians(
+            b[0] -
+            a[0]
+        );
+
+
+    const dLon =
+        toRadians(
+            b[1] -
+            a[1]
+        );
+
+
+    const x =
+
+        Math.sin(
+            dLat / 2
+        ) ** 2
 
         +
 
-        Math.cos(lat1) *
-        Math.cos(lat2) *
+        Math.cos(lat1)
 
-        Math.sin(deltaLon / 2) *
-        Math.sin(deltaLon / 2);
+        *
+
+        Math.cos(lat2)
+
+        *
+
+        Math.sin(
+            dLon / 2
+        ) ** 2;
 
 
-    const c =
-        2 * Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
+    return earth *
+        2 *
+        Math.atan2(
+
+            Math.sqrt(x),
+
+            Math.sqrt(
+                1 - x
+            )
+
         );
 
-
-    return R * c;
 }
 
 
-// ============================================
-// ROAD DISTANCE ESTIMATION
-// ============================================
+function knownRoadDistance(from, to) {
 
-function estimateRoadDistance(
-    from,
-    to
-) {
+    return (
 
-    const straightDistance =
-        haversineDistance(
-            indianCities[from],
-            indianCities[to]
-        );
+        knownDistances[
+            `${from}|${to}`
+        ]
 
+        ??
 
-    let roadFactor = 1.24;
+        knownDistances[
+            `${to}|${from}`
+        ]
 
+        ??
 
-    // Short regional trips usually have
-    // slightly larger road deviation.
+        null
 
-    if (straightDistance < 100) {
-
-        roadFactor = 1.32;
-
-    }
-
-    else if (straightDistance < 300) {
-
-        roadFactor = 1.27;
-
-    }
-
-    else if (straightDistance > 1000) {
-
-        roadFactor = 1.18;
-
-    }
-
-
-    return Math.round(
-        straightDistance *
-        roadFactor
     );
+
 }
 
 
-// ============================================
-// GET DISTANCE
-// ============================================
+function getDistance(from, to) {
 
-function getCityDistance(
-    from,
-    to
-) {
+    const known =
+        knownRoadDistance(
+            from,
+            to
+        );
 
-    // 1. Stored route
 
-    if (
-        cityDistances[from] &&
-        cityDistances[from][to]
-    ) {
+    if (known) {
 
         return {
-            distance:
-                cityDistances[from][to],
 
-            source:
-                "stored"
+            distance:
+                known,
+
+            exactStored:
+                true
+
         };
+
     }
 
 
-    // Reverse stored route
-
     if (
-        cityDistances[to] &&
-        cityDistances[to][from]
-    ) {
-
-        return {
-            distance:
-                cityDistances[to][from],
-
-            source:
-                "stored"
-        };
-    }
-
-
-    // 2. Automatic fallback
-
-    if (
-        indianCities[from] &&
+        indianCities[from]
+        &&
         indianCities[to]
     ) {
 
+        const straight =
+            straightDistance(
+                indianCities[from],
+                indianCities[to]
+            );
+
+
+        let roadFactor =
+            1.24;
+
+
+        if (
+            straight <
+            100
+        ) {
+
+            roadFactor =
+                1.32;
+
+        }
+
+        else if (
+            straight <
+            300
+        ) {
+
+            roadFactor =
+                1.27;
+
+        }
+
+        else if (
+            straight >
+            1000
+        ) {
+
+            roadFactor =
+                1.18;
+
+        }
+
+
         return {
+
             distance:
-                estimateRoadDistance(
-                    from,
-                    to
+                Math.round(
+                    straight *
+                    roadFactor
                 ),
 
-            source:
-                "estimated"
+            exactStored:
+                false
+
         };
+
     }
 
 
     return null;
+
 }
 
 
-// ============================================
+// ======================================================
 // ROUTE STATUS
-// ============================================
+// ======================================================
 
-function setRouteStatus(
-    title,
-    text
-) {
+function updateRouteStatus() {
 
-    const titleElement =
-        distanceInfo.querySelector(
-            "span"
-        );
-
-    const textElement =
-        distanceInfo.querySelector(
-            "strong"
-        );
+    const from =
+        $("fromCity").value;
 
 
-    titleElement.textContent =
-        title;
-
-    textElement.textContent =
-        text;
-}
+    const to =
+        $("toCity").value;
 
 
-// ============================================
-// ROUTE MODE
-// ============================================
+    const custom =
 
-function updateRouteMode() {
-
-    const customMode =
-        fromCity.value ===
+        from ===
         "Custom Location"
 
         ||
 
-        toCity.value ===
+        to ===
         "Custom Location";
 
 
-    if (customMode) {
-
-        customLocationBox.classList.remove(
-            "hidden"
+    $("customLocationBox")
+        .classList.toggle(
+            "hidden",
+            !custom
         );
 
 
-        setRouteStatus(
-            "CUSTOM ROUTE",
-            "Enter your locations and actual road distance."
-        );
+    if (custom) {
 
+        $("distanceText")
+            .textContent =
+            "Enter your custom locations and road distance.";
 
         return;
+
     }
 
 
-    customLocationBox.classList.add(
-        "hidden"
-    );
-
-
     if (
-        fromCity.value ===
+        from ===
         "Select City"
 
         ||
 
-        toCity.value ===
+        to ===
         "Select City"
     ) {
 
-        setRouteStatus(
-            "ROUTE STATUS",
-            "Select your starting point and destination."
-        );
+        $("distanceText")
+            .textContent =
+            "Select both cities.";
 
         return;
+
     }
 
 
     if (
-        fromCity.value ===
-        toCity.value
+        from ===
+        to
     ) {
 
-        setRouteStatus(
-            "CHECK ROUTE",
-            "Starting point and destination cannot be the same."
-        );
+        $("distanceText")
+            .textContent =
+            "Choose two different cities.";
 
         return;
+
     }
 
 
     const result =
-        getCityDistance(
-            fromCity.value,
-            toCity.value
+        getDistance(
+            from,
+            to
         );
 
 
     if (!result) {
 
-        setRouteStatus(
-            "CUSTOM ROUTE REQUIRED",
-            "Use Custom Location and enter the road distance."
-        );
+        $("distanceText")
+            .textContent =
+            "Distance unavailable.";
 
         return;
-    }
-
-
-    if (
-        result.source ===
-        "stored"
-    ) {
-
-        setRouteStatus(
-            "ROAD DISTANCE",
-            `${fromCity.value} → ${toCity.value} • Approx. ${result.distance} KM`
-        );
 
     }
 
-    else {
 
-        setRouteStatus(
-            "ESTIMATED ROAD DISTANCE",
-            `${fromCity.value} → ${toCity.value} • ~${result.distance} KM`
-        );
+    $("distanceText")
+        .textContent =
 
-    }
+        `${from} → ${to} • ${
+            result.exactStored
+                ?
+                ""
+                :
+                "~"
+        }${result.distance} KM`;
+
 }
 
 
-// ============================================
-// EVENTS
-// ============================================
+// ======================================================
+// ROUTE DATA
+// ======================================================
 
-fromCity.addEventListener(
-    "change",
-    updateRouteMode
-);
+function getRouteData() {
 
-
-toCity.addEventListener(
-    "change",
-    updateRouteMode
-);
+    const from =
+        $("fromCity").value;
 
 
-// ============================================
-// SWAP
-// ============================================
-
-swapBtn.addEventListener(
-    "click",
-    () => {
-
-        const temporary =
-            fromCity.value;
+    const to =
+        $("toCity").value;
 
 
-        fromCity.value =
-            toCity.value;
+    const custom =
 
-
-        toCity.value =
-            temporary;
-
-
-        const customTemp =
-            customFrom.value;
-
-
-        customFrom.value =
-            customTo.value;
-
-
-        customTo.value =
-            customTemp;
-
-
-        updateRouteMode();
-    }
-);
-
-
-// ============================================
-// PASSENGERS
-// ============================================
-
-minusPassenger.addEventListener(
-    "click",
-    () => {
-
-        const current =
-            Math.max(
-                1,
-                Number(
-                    passengers.value
-                ) || 1
-            );
-
-
-        passengers.value =
-            Math.max(
-                1,
-                current - 1
-            );
-    }
-);
-
-
-plusPassenger.addEventListener(
-    "click",
-    () => {
-
-        const current =
-            Math.max(
-                1,
-                Number(
-                    passengers.value
-                ) || 1
-            );
-
-
-        passengers.value =
-            current + 1;
-    }
-);
-
-
-// ============================================
-// FUEL TYPE
-// ============================================
-
-fuelType.addEventListener(
-    "change",
-    updateFuelLabels
-);
-
-
-function updateFuelLabels() {
-
-    const type =
-        fuelType.value;
-
-
-    if (
-        type === "petrol" ||
-        type === "diesel"
-    ) {
-
-        mileageLabel.textContent =
-            "Mileage";
-
-        mileageUnit.textContent =
-            "KM/L";
-
-        fuelPriceLabel.textContent =
-            "Fuel Price";
-
-        priceUnit.textContent =
-            "/L";
-
-    }
-
-    else if (
-        type === "cng"
-    ) {
-
-        mileageLabel.textContent =
-            "Efficiency";
-
-        mileageUnit.textContent =
-            "KM/KG";
-
-        fuelPriceLabel.textContent =
-            "CNG Price";
-
-        priceUnit.textContent =
-            "/KG";
-
-    }
-
-    else {
-
-        mileageLabel.textContent =
-            "Efficiency";
-
-        mileageUnit.textContent =
-            "KM/kWh";
-
-        fuelPriceLabel.textContent =
-            "Electricity Cost";
-
-        priceUnit.textContent =
-            "/kWh";
-    }
-}
-
-
-// ============================================
-// VALUE
-// ============================================
-
-function valueOf(element) {
-
-    return Math.max(
-        0,
-        Number(
-            element.value
-        ) || 0
-    );
-}
-
-
-// ============================================
-// GET ROUTE
-// ============================================
-
-function getRoute() {
-
-    const customMode =
-        fromCity.value ===
+        from ===
         "Custom Location"
 
         ||
 
-        toCity.value ===
+        to ===
         "Custom Location";
 
 
-    if (customMode) {
+    if (custom) {
+
+        const customFrom =
+            $("customFrom")
+                .value
+                .trim();
+
+
+        const customTo =
+            $("customTo")
+                .value
+                .trim();
+
 
         const distance =
-            valueOf(
-                customDistance
+            numberValue(
+                "customDistance"
             );
 
 
-        if (distance <= 0) {
+        if (
+            !customFrom
+            ||
+            !customTo
+            ||
+            distance <= 0
+        ) {
 
             throw new Error(
-                "Enter a valid road distance for your custom route."
+                "Enter custom locations and road distance."
             );
-        }
 
-
-        const from =
-            customFrom.value.trim();
-
-
-        const to =
-            customTo.value.trim();
-
-
-        if (!from) {
-
-            throw new Error(
-                "Enter your starting location."
-            );
-        }
-
-
-        if (!to) {
-
-            throw new Error(
-                "Enter your destination."
-            );
         }
 
 
         return {
-            from,
-            to,
-            distance,
-            source: "custom"
+
+            from:
+                customFrom,
+
+            to:
+                customTo,
+
+            distance
+
         };
+
     }
 
 
     if (
-        fromCity.value ===
+        from ===
         "Select City"
 
         ||
 
-        toCity.value ===
+        to ===
         "Select City"
     ) {
 
         throw new Error(
-            "Select your starting point and destination."
+            "Select starting point and destination."
         );
+
     }
 
 
     if (
-        fromCity.value ===
-        toCity.value
+        from ===
+        to
     ) {
 
         throw new Error(
             "Starting point and destination cannot be the same."
         );
+
     }
 
 
     const result =
-        getCityDistance(
-            fromCity.value,
-            toCity.value
+        getDistance(
+            from,
+            to
         );
 
 
     if (!result) {
 
         throw new Error(
-            "Unable to estimate this route."
+            "Unable to estimate route."
         );
+
     }
 
 
     return {
 
-        from:
-            fromCity.value,
+        from,
 
-        to:
-            toCity.value,
+        to,
 
         distance:
-            result.distance,
+            result.distance
 
-        source:
-            result.source
     };
+
 }
 
 
-// ============================================
-// CALCULATE BUTTON
-// ============================================
-
-calculateBtn.addEventListener(
-    "click",
-    () => {
-
-        calculateBtn.innerHTML =
-            `
-                <span>⚙️</span>
-                Calculating...
-            `;
-
-
-        calculateBtn.disabled = true;
-
-
-        setTimeout(
-            () => {
-
-                calculateTrip();
-
-
-                calculateBtn.disabled = false;
-
-
-                calculateBtn.innerHTML =
-                    `
-                        <span>🚗</span>
-                        Calculate My Trip
-                        <span class="button-arrow">→</span>
-                    `;
-
-            },
-            400
-        );
-    }
-);
-
-
-// ============================================
+// ======================================================
 // CALCULATE TRIP
-// ============================================
+// ======================================================
 
 function calculateTrip() {
 
-    hideError();
+    $("errorMessage")
+        .classList
+        .add(
+            "hidden"
+        );
 
 
     try {
 
         const route =
-            getRoute();
+            getRouteData();
 
 
-        const efficiency =
-            valueOf(mileage);
+        const mileage =
+            numberValue(
+                "mileage"
+            );
 
 
-        const energyPrice =
-            valueOf(fuelPrice);
+        const fuelPrice =
+            numberValue(
+                "fuelPrice"
+            );
 
 
-        const people =
+        const travellers =
             Math.max(
+
                 1,
+
                 Math.round(
-                    valueOf(
-                        passengers
+                    numberValue(
+                        "passengers"
                     )
                 )
+
             );
 
 
         if (
-            efficiency <= 0
+            mileage <= 0
         ) {
 
             throw new Error(
-                "Mileage / efficiency must be greater than 0."
+                "Enter valid mileage."
             );
+
         }
 
 
         if (
-            energyPrice <= 0
+            fuelPrice <= 0
         ) {
 
             throw new Error(
-                "Fuel / energy price must be greater than 0."
+                "Enter valid fuel price."
             );
+
         }
 
 
@@ -1110,497 +753,346 @@ function calculateTrip() {
 
 
         if (
-            tripType.value ===
+            $("tripType").value ===
             "round"
         ) {
 
-            totalDistance *= 2;
+            totalDistance *=
+                2;
+
         }
 
 
-        const baseEnergy =
+        const baseFuel =
             totalDistance /
-            efficiency;
+            mileage;
 
 
-        const reservePercent =
-            valueOf(reserve);
+        const reserve =
+            numberValue(
+                "reserve"
+            );
 
 
-        const planningEnergy =
-            baseEnergy *
+        const fuelRequired =
+            baseFuel *
             (
                 1 +
-                reservePercent /
+                reserve /
                 100
             );
 
 
-        const energyCost =
-            planningEnergy *
-            energyPrice;
+        const fuelCost =
+            fuelRequired *
+            fuelPrice;
 
 
-        const tollValue =
-            valueOf(toll);
+        const expenses = {
 
-        const parkingValue =
-            valueOf(parking);
+            Fuel:
+                fuelCost,
 
-        const foodValue =
-            valueOf(food);
+            Toll:
+                numberValue(
+                    "toll"
+                ),
 
-        const hotelValue =
-            valueOf(hotel);
+            Parking:
+                numberValue(
+                    "parking"
+                ),
 
-        const otherValue =
-            valueOf(other);
+            Food:
+                numberValue(
+                    "food"
+                ),
+
+            Hotel:
+                numberValue(
+                    "hotel"
+                ),
+
+            Other:
+                numberValue(
+                    "other"
+                )
+
+        };
 
 
         const totalCost =
-            energyCost +
-            tollValue +
-            parkingValue +
-            foodValue +
-            hotelValue +
-            otherValue;
+            Object
+                .values(
+                    expenses
+                )
+                .reduce(
+                    (
+                        total,
+                        value
+                    ) =>
+                        total +
+                        value,
+                    0
+                );
 
 
         const perPerson =
             totalCost /
-            people;
+            travellers;
 
 
-        const costPerKm =
-            totalCost /
-            totalDistance;
+        let unit =
+            "L";
 
 
-        displayResults({
+        if (
+            $("fuelType").value ===
+            "cng"
+        ) {
 
-            route,
-            totalDistance,
-            baseEnergy,
-            planningEnergy,
-            energyCost,
+            unit =
+                "KG";
+
+        }
+
+
+        if (
+            $("fuelType").value ===
+            "electric"
+        ) {
+
+            unit =
+                "kWh";
+
+        }
+
+
+        currentTrip = {
+
+            from:
+                route.from,
+
+            to:
+                route.to,
+
+            distance:
+                totalDistance,
+
+            baseFuel,
+
+            fuelRequired,
+
+            fuelCost,
+
             totalCost,
-            perPerson,
-            costPerKm,
 
-            tollValue,
-            parkingValue,
-            foodValue,
-            hotelValue,
-            otherValue
-        });
+            perPerson,
+
+            travellers,
+
+            expenses,
+
+            unit
+
+        };
+
+
+        displayTrip();
+
+        saveTrip();
 
     }
 
     catch (error) {
 
-        showError(
-            error.message
-        );
-    }
-}
+        $("errorMessage")
+            .textContent =
+            "⚠ " +
+            error.message;
 
 
-// ============================================
-// DISPLAY RESULTS
-// ============================================
-
-function displayResults(data) {
-
-    const unit =
-        getEnergyUnit();
-
-
-    document.getElementById(
-        "resultFrom"
-    ).textContent =
-        data.route.from;
-
-
-    document.getElementById(
-        "resultTo"
-    ).textContent =
-        data.route.to;
-
-
-    animateNumberText(
-        "resultDistance",
-        data.totalDistance,
-        " KM",
-        1
-    );
-
-
-    animateNumberText(
-        "resultFuel",
-        data.planningEnergy,
-        ` ${unit}`,
-        2
-    );
-
-
-    animateCurrency(
-        "resultFuelCost",
-        data.energyCost
-    );
-
-
-    animateCurrency(
-        "resultCostKm",
-        data.costPerKm
-    );
-
-
-    animateCurrency(
-        "resultTotal",
-        data.totalCost
-    );
-
-
-    animateCurrency(
-        "resultPerPerson",
-        data.perPerson
-    );
-
-
-    document.getElementById(
-        "baseFuel"
-    ).textContent =
-        `${data.baseEnergy.toFixed(2)} ${unit}`;
-
-
-    document.getElementById(
-        "reserveFuel"
-    ).textContent =
-        `${data.planningEnergy.toFixed(2)} ${unit}`;
-
-
-    updateTankStatus(
-        data.planningEnergy,
-        unit
-    );
-
-
-    renderBreakdown({
-
-        Fuel: data.energyCost,
-        Toll: data.tollValue,
-        Parking: data.parkingValue,
-        Food: data.foodValue,
-        Hotel: data.hotelValue,
-        Other: data.otherValue
-
-    });
-
-
-    updateCabComparison(
-        data.totalCost
-    );
-
-
-    results.classList.remove(
-        "hidden"
-    );
-
-
-    saveRecentTrip({
-
-        from:
-            data.route.from,
-
-        to:
-            data.route.to,
-
-        distance:
-            data.totalDistance,
-
-        cost:
-            data.totalCost,
-
-        source:
-            data.route.source
-
-    });
-
-
-    setTimeout(
-        () => {
-
-            results.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        },
-        100
-    );
-}
-
-
-// ============================================
-// NUMBER ANIMATION
-// ============================================
-
-function animateNumberText(
-    elementId,
-    target,
-    suffix,
-    decimals
-) {
-
-    const element =
-        document.getElementById(
-            elementId
-        );
-
-
-    const duration = 700;
-
-    const start =
-        performance.now();
-
-
-    function update(now) {
-
-        const progress =
-            Math.min(
-                (
-                    now -
-                    start
-                ) /
-                duration,
-                1
+        $("errorMessage")
+            .classList
+            .remove(
+                "hidden"
             );
 
-
-        const eased =
-            1 -
-            Math.pow(
-                1 - progress,
-                3
-            );
-
-
-        const current =
-            target *
-            eased;
-
-
-        element.textContent =
-            `${current.toFixed(decimals)}${suffix}`;
-
-
-        if (
-            progress <
-            1
-        ) {
-
-            requestAnimationFrame(
-                update
-            );
-        }
     }
 
-
-    requestAnimationFrame(
-        update
-    );
 }
 
 
-// ============================================
-// CURRENCY ANIMATION
-// ============================================
+// ======================================================
+// DISPLAY TRIP
+// ======================================================
 
-function animateCurrency(
-    elementId,
-    target
-) {
+function displayTrip() {
 
-    const element =
-        document.getElementById(
-            elementId
+    const trip =
+        currentTrip;
+
+
+    $("resultFrom")
+        .textContent =
+        trip.from;
+
+
+    $("resultTo")
+        .textContent =
+        trip.to;
+
+
+    $("resultDistance")
+        .textContent =
+        `${trip.distance.toFixed(1)} KM`;
+
+
+    $("resultFuel")
+        .textContent =
+        `${trip.fuelRequired.toFixed(2)} ${trip.unit}`;
+
+
+    $("resultFuelCost")
+        .textContent =
+        money(
+            trip.fuelCost
         );
 
 
-    const duration =
-        700;
+    $("resultCostKm")
+        .textContent =
+        money(
+            trip.totalCost /
+            trip.distance
+        );
 
 
-    const start =
-        performance.now();
+    $("resultTotal")
+        .textContent =
+        money(
+            trip.totalCost
+        );
 
 
-    function update(now) {
-
-        const progress =
-            Math.min(
-                (
-                    now -
-                    start
-                ) /
-                duration,
-                1
-            );
+    $("resultPerPerson")
+        .textContent =
+        money(
+            trip.perPerson
+        );
 
 
-        const eased =
-            1 -
-            Math.pow(
-                1 - progress,
-                3
-            );
+    $("baseFuel")
+        .textContent =
+        `${trip.baseFuel.toFixed(2)} ${trip.unit}`;
 
 
-        element.textContent =
-            money(
-                target *
-                eased
-            );
+    $("reserveFuel")
+        .textContent =
+        `${trip.fuelRequired.toFixed(2)} ${trip.unit}`;
 
 
-        if (
-            progress <
-            1
-        ) {
+    updateTank();
 
-            requestAnimationFrame(
-                update
-            );
-        }
-    }
+    renderBreakdown();
+
+    renderCabComparison();
+
+    showPassengerSection();
 
 
-    requestAnimationFrame(
-        update
-    );
+    $("results")
+        .classList
+        .remove(
+            "hidden"
+        );
+
+
+    $("results")
+        .scrollIntoView({
+
+            behavior:
+                "smooth"
+
+        });
+
 }
 
 
-// ============================================
-// ENERGY UNIT
-// ============================================
+// ======================================================
+// TANK
+// ======================================================
 
-function getEnergyUnit() {
-
-    const energyTitle =
-        document.getElementById(
-            "energyTitle"
-        );
-
+function updateTank() {
 
     if (
-        fuelType.value ===
-        "cng"
-    ) {
-
-        energyTitle.textContent =
-            "CNG Required";
-
-        return "KG";
-    }
-
-
-    if (
-        fuelType.value ===
+        $("fuelType").value ===
         "electric"
     ) {
 
-        energyTitle.textContent =
-            "Energy Required";
-
-        return "kWh";
-    }
-
-
-    energyTitle.textContent =
-        "Fuel Required";
-
-
-    return "L";
-}
-
-
-// ============================================
-// TANK STATUS
-// ============================================
-
-function updateTankStatus(
-    required,
-    unit
-) {
-
-    const output =
-        document.getElementById(
-            "tankStatus"
-        );
-
-
-    if (
-        fuelType.value ===
-        "electric"
-    ) {
-
-        output.textContent =
+        $("tankStatus")
+            .textContent =
             "Not applicable for EV";
 
         return;
+
     }
 
 
-    const capacity =
-        valueOf(
-            tankCapacity
+    const tank =
+        numberValue(
+            "tankCapacity"
         );
 
 
     if (
-        capacity <= 0
+        tank <= 0
     ) {
 
-        output.textContent =
-            "Capacity not entered";
+        $("tankStatus")
+            .textContent =
+            "Not provided";
 
         return;
+
     }
 
 
     if (
-        required <=
-        capacity
+        currentTrip.fuelRequired <=
+        tank
     ) {
 
-        output.textContent =
-            `✓ Fits within ${capacity} ${unit}`;
+        $("tankStatus")
+            .textContent =
+            "✓ Enough for trip";
+
     }
 
     else {
 
         const extra =
-            required -
-            capacity;
+            currentTrip.fuelRequired -
+            tank;
 
 
-        output.textContent =
-            `⚠ ${extra.toFixed(2)} ${unit} over capacity`;
+        $("tankStatus")
+            .textContent =
+            `Need ${extra.toFixed(2)} ${currentTrip.unit} extra`;
+
     }
+
 }
 
 
-// ============================================
+// ======================================================
 // BREAKDOWN
-// ============================================
+// ======================================================
 
-function renderBreakdown(values) {
+function renderBreakdown() {
 
     const container =
-        document.getElementById(
-            "breakdown"
-        );
+        $("breakdown");
 
 
     container.innerHTML =
@@ -1608,314 +1100,841 @@ function renderBreakdown(values) {
 
 
     const total =
-        Object.values(values)
-            .reduce(
-                (sum, value) =>
-                    sum + value,
-                0
-            );
+        currentTrip.totalCost;
 
 
-    Object.entries(values)
+    Object
+        .entries(
+            currentTrip.expenses
+        )
         .forEach(
-            ([label, amount]) => {
+            (
+                [
+                    name,
+                    value
+                ]
+            ) => {
 
                 if (
-                    amount <= 0
+                    value <= 0
                 ) {
 
                     return;
+
                 }
 
 
-                const percentage =
-                    total > 0
-                        ?
-                        (
-                            amount /
-                            total
-                        ) *
-                        100
-                        :
-                        0;
+                const percent =
+
+                    total >
+                    0
+
+                    ?
+
+                    value /
+                    total *
+                    100
+
+                    :
+
+                    0;
 
 
-                const item =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                item.className =
-                    "breakdown-item";
-
-
-                const top =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                top.className =
-                    "breakdown-top";
-
-
-                const name =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                name.textContent =
-                    label;
-
-
-                const value =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                value.textContent =
-                    `${money(amount)} • ${percentage.toFixed(0)}%`;
-
-
-                top.appendChild(
-                    name
-                );
-
-
-                top.appendChild(
-                    value
-                );
-
-
-                const track =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                track.className =
-                    "breakdown-track";
-
-
-                const fill =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                fill.className =
-                    "breakdown-fill";
-
-
-                track.appendChild(
-                    fill
-                );
-
-
-                item.appendChild(
-                    top
-                );
-
-
-                item.appendChild(
-                    track
-                );
-
-
-                container.appendChild(
-                    item
-                );
-
-
-                requestAnimationFrame(
-                    () => {
-
-                        requestAnimationFrame(
-                            () => {
-
-                                fill.style.width =
-                                    `${percentage}%`;
-
-                            }
+                const row =
+                    document
+                        .createElement(
+                            "div"
                         );
-                    }
-                );
+
+
+                row.className =
+                    "bar-row";
+
+
+                row.innerHTML = `
+
+                    <div class="bar-top">
+
+                        <span>
+                            ${name}
+                        </span>
+
+                        <span>
+                            ${money(value)}
+                            •
+                            ${percent.toFixed(0)}%
+                        </span>
+
+                    </div>
+
+                    <div class="bar-track">
+
+                        <div
+                            class="bar-fill"
+                            style="width:${percent}%"
+                        ></div>
+
+                    </div>
+                `;
+
+
+                container
+                    .appendChild(
+                        row
+                    );
 
             }
         );
+
 }
 
 
-// ============================================
+// ======================================================
 // CAB COMPARISON
-// ============================================
+// ======================================================
 
-function updateCabComparison(
-    ownVehicleTotal
-) {
+function renderCabComparison() {
 
-    const comparison =
-        document.getElementById(
-            "cabComparison"
-        );
-
-
-    const cabAmount =
-        valueOf(
-            cabFare
+    const cab =
+        numberValue(
+            "cabFare"
         );
 
 
     if (
-        cabAmount <= 0
+        cab <= 0
     ) {
 
-        comparison.classList.add(
-            "hidden"
-        );
+        $("cabComparison")
+            .classList
+            .add(
+                "hidden"
+            );
 
         return;
+
     }
 
 
-    comparison.classList.remove(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "ownVehicleCost"
-    ).textContent =
-        money(
-            ownVehicleTotal
+    $("cabComparison")
+        .classList
+        .remove(
+            "hidden"
         );
 
 
-    document.getElementById(
-        "cabCost"
-    ).textContent =
+    $("ownVehicleCost")
+        .textContent =
         money(
-            cabAmount
+            currentTrip.totalCost
+        );
+
+
+    $("cabCost")
+        .textContent =
+        money(
+            cab
         );
 
 
     const difference =
         Math.abs(
-            ownVehicleTotal -
-            cabAmount
-        );
-
-
-    const message =
-        document.getElementById(
-            "cabMessage"
+            cab -
+            currentTrip.totalCost
         );
 
 
     if (
-        ownVehicleTotal <
-        cabAmount
+        currentTrip.totalCost <
+        cab
     ) {
 
-        message.textContent =
-            `🚗 Own vehicle estimate is ${money(difference)} lower.`;
+        $("cabMessage")
+            .textContent =
+            `🚗 Own vehicle saves approximately ${money(difference)}.`;
 
     }
 
     else if (
-        cabAmount <
-        ownVehicleTotal
+        cab <
+        currentTrip.totalCost
     ) {
 
-        message.textContent =
-            `🚕 Cab estimate is ${money(difference)} lower.`;
+        $("cabMessage")
+            .textContent =
+            `🚕 Cab saves approximately ${money(difference)}.`;
 
     }
 
     else {
 
-        message.textContent =
-            "Both options have approximately the same estimated cost.";
+        $("cabMessage")
+            .textContent =
+            "Both options cost approximately the same.";
+
     }
+
 }
 
 
-// ============================================
-// RECENT TRIPS
-// ============================================
+// ======================================================
+// PASSENGER SECTION
+// ======================================================
 
-function saveRecentTrip(trip) {
+function showPassengerSection() {
 
-    let trips =
-        getRecentTrips();
-
-
-    trips.unshift({
-
-        ...trip,
-
-        time:
-            new Date()
-                .toISOString()
-
-    });
-
-
-    trips =
-        trips.slice(
-            0,
-            5
+    $("passengerEmailSection")
+        .classList
+        .remove(
+            "hidden"
         );
 
 
-    localStorage.setItem(
-        "fuelwiseRecentTrips",
-        JSON.stringify(
-            trips
-        )
-    );
+    $("emailTotalCost")
+        .textContent =
+        money(
+            currentTrip.totalCost
+        );
 
 
-    renderRecentTrips();
+    $("emailTravellerCount")
+        .textContent =
+        currentTrip.travellers;
+
+
+    $("emailPerPerson")
+        .textContent =
+        money(
+            currentTrip.perPerson
+        );
+
+
+    createPassengerRows();
+
 }
 
 
-function getRecentTrips() {
+// ======================================================
+// PASSENGER ROWS
+// ======================================================
+
+function createPassengerRows() {
+
+    const container =
+        $("passengerList");
+
+
+    container.innerHTML =
+        "";
+
+
+    for (
+        let i = 1;
+        i <= currentTrip.travellers;
+        i++
+    ) {
+
+        const row =
+            document
+                .createElement(
+                    "div"
+                );
+
+
+        row.className =
+            "passenger-email-row";
+
+
+        row.innerHTML = `
+
+            <div class="passenger-number">
+                ${i}
+            </div>
+
+            <input
+                class="passenger-name"
+                placeholder="Passenger ${i} name"
+            >
+
+            <input
+                class="passenger-email"
+                type="email"
+                placeholder="passenger${i}@email.com"
+            >
+
+            <button
+                class="send-passenger-btn"
+                type="button"
+            >
+                Send ${money(currentTrip.perPerson)}
+            </button>
+
+        `;
+
+
+        row
+            .querySelector(
+                ".send-passenger-btn"
+            )
+            .addEventListener(
+                "click",
+                () =>
+                    sendReminder(
+                        row
+                    )
+            );
+
+
+        container
+            .appendChild(
+                row
+            );
+
+    }
+
+}
+
+
+// ======================================================
+// VALID EMAIL
+// ======================================================
+
+function validEmail(email) {
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(
+            email
+        );
+
+}
+
+
+// ======================================================
+// EMAIL DATA
+// ======================================================
+
+function emailData(row) {
+
+    const name =
+
+        row
+            .querySelector(
+                ".passenger-name"
+            )
+            .value
+            .trim()
+
+        ||
+
+        "Friend";
+
+
+    const email =
+
+        row
+            .querySelector(
+                ".passenger-email"
+            )
+            .value
+            .trim();
+
+
+    const sender =
+
+        $("senderName")
+            .value
+            .trim()
+
+        ||
+
+        "Your Trip Organizer";
+
+
+    const payment =
+
+        $("paymentNote")
+            .value
+            .trim()
+
+        ||
+
+        "Please send your share whenever convenient.";
+
+
+    return {
+
+        passengerName:
+            name,
+
+        passengerEmail:
+            email,
+
+        senderName:
+            sender,
+
+        from:
+            currentTrip.from,
+
+        to:
+            currentTrip.to,
+
+        distance:
+            `${currentTrip.distance.toFixed(1)} KM`,
+
+        totalCost:
+            money(
+                currentTrip.totalCost
+            ),
+
+        share:
+            money(
+                currentTrip.perPerson
+            ),
+
+        paymentNote:
+            payment
+
+    };
+
+}
+
+
+// ======================================================
+// SEND SINGLE EMAIL
+// ======================================================
+
+async function sendReminder(row) {
+
+    const data =
+        emailData(
+            row
+        );
+
+
+    if (
+        !validEmail(
+            data.passengerEmail
+        )
+    ) {
+
+        showEmailStatus(
+            "Enter a valid passenger email.",
+            false
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        row.querySelector(
+            ".send-passenger-btn"
+        );
+
+
+    const oldText =
+        button.textContent;
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        "Sending...";
+
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem(
-                "fuelwiseRecentTrips"
+        const response =
+            await fetch(
+                "/api/send-email",
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            data
+                        )
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                result.error ||
+                "Email could not be sent."
+            );
+
+        }
+
+
+        button.textContent =
+            "✓ Sent";
+
+
+        showEmailStatus(
+            `Reminder sent successfully to ${data.passengerEmail}`,
+            true
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "EMAIL ERROR:",
+            error
+        );
+
+
+        button.textContent =
+            oldText;
+
+
+        showEmailStatus(
+            `Email failed: ${error.message}`,
+            false
+        );
+
+    }
+
+
+    setTimeout(
+        () => {
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                oldText;
+
+        },
+        2000
+    );
+
+}
+
+
+// ======================================================
+// SEND ALL
+// ======================================================
+
+$("sendAllBtn")
+    .addEventListener(
+        "click",
+        async () => {
+
+            const rows = [
+
+                ...document
+                    .querySelectorAll(
+                        ".passenger-email-row"
+                    )
+
+            ];
+
+
+            const validRows =
+                rows.filter(
+                    row =>
+                        validEmail(
+                            row
+                                .querySelector(
+                                    ".passenger-email"
+                                )
+                                .value
+                                .trim()
+                        )
+                );
+
+
+            if (
+                validRows.length ===
+                0
+            ) {
+
+                showEmailStatus(
+                    "Enter at least one valid passenger email.",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            const button =
+                $("sendAllBtn");
+
+
+            const oldText =
+                button.textContent;
+
+
+            button.disabled =
+                true;
+
+
+            button.textContent =
+                "Sending reminders...";
+
+
+            let sent =
+                0;
+
+
+            const failures =
+                [];
+
+
+            for (
+                let i = 0;
+                i < validRows.length;
+                i++
+            ) {
+
+                const data =
+                    emailData(
+                        validRows[i]
+                    );
+
+
+                showEmailStatus(
+                    `Sending ${i + 1} of ${validRows.length}...`,
+                    true
+                );
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/send-email",
+                            {
+                                method:
+                                    "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(
+                                        data
+                                    )
+                            }
+                        );
+
+
+                    const result =
+                        await response.json();
+
+
+                    if (
+                        !response.ok
+                    ) {
+
+                        throw new Error(
+                            result.error ||
+                            "Email failed."
+                        );
+
+                    }
+
+
+                    sent++;
+
+                }
+
+                catch (error) {
+
+                    failures.push(
+                        error.message
+                    );
+
+                }
+
+            }
+
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                oldText;
+
+
+            if (
+                failures.length ===
+                0
+            ) {
+
+                showEmailStatus(
+                    `All ${sent} reminders sent successfully.`,
+                    true
+                );
+
+            }
+
+            else {
+
+                showEmailStatus(
+                    `${sent} sent, ${failures.length} failed. ${failures[0]}`,
+                    false
+                );
+
+            }
+
+        }
+    );
+
+
+// ======================================================
+// EMAIL STATUS
+// ======================================================
+
+function showEmailStatus(
+    message,
+    success
+) {
+
+    const box =
+        $("emailStatus");
+
+
+    box.classList.remove(
+        "hidden",
+        "success",
+        "error"
+    );
+
+
+    box.classList.add(
+        success
+            ?
+            "success"
+            :
+            "error"
+    );
+
+
+    box.textContent =
+        success
+            ?
+            `✓ ${message}`
+            :
+            `⚠ ${message}`;
+
+}
+
+
+// ======================================================
+// HISTORY
+// ======================================================
+
+function getHistory() {
+
+    try {
+
+        return (
+
+            JSON.parse(
+                localStorage.getItem(
+                    "fuelwiseHistory"
+                )
             )
-        ) || [];
+
+            ||
+
+            []
+
+        );
 
     }
 
     catch {
 
         return [];
+
     }
+
 }
 
 
-// ============================================
-// RENDER HISTORY
-// ============================================
+function saveTrip() {
 
-function renderRecentTrips() {
+    const history =
+        getHistory();
+
+
+    history.unshift({
+
+        from:
+            currentTrip.from,
+
+        to:
+            currentTrip.to,
+
+        distance:
+            currentTrip.distance,
+
+        total:
+            currentTrip.totalCost,
+
+        date:
+            new Date()
+                .toLocaleDateString(
+                    "en-IN"
+                )
+
+    });
+
+
+    localStorage.setItem(
+
+        "fuelwiseHistory",
+
+        JSON.stringify(
+            history.slice(
+                0,
+                5
+            )
+        )
+
+    );
+
+
+    renderHistory();
+
+}
+
+
+function renderHistory() {
 
     const container =
-        document.getElementById(
-            "recentTrips"
-        );
+        $("recentTrips");
 
 
-    const trips =
-        getRecentTrips();
+    const history =
+        getHistory();
 
 
     container.innerHTML =
@@ -1923,148 +1942,275 @@ function renderRecentTrips() {
 
 
     if (
-        trips.length === 0
+        history.length ===
+        0
     ) {
 
-        container.innerHTML =
-            `
-                <div class="empty-state">
-                    <div>🛣️</div>
-                    <strong>No road trips yet</strong>
-                    <span>Your latest calculations will appear here.</span>
-                </div>
-            `;
+        container.innerHTML = `
+
+            <div class="recent-item">
+
+                <strong>
+                    No trips calculated yet
+                </strong>
+
+                <span>
+                    Your recent trips will appear here.
+                </span>
+
+            </div>
+        `;
+
 
         return;
+
     }
 
 
-    trips.forEach(
+    history.forEach(
         trip => {
 
-            const element =
-                document.createElement(
-                    "div"
+            const row =
+                document
+                    .createElement(
+                        "div"
+                    );
+
+
+            row.className =
+                "recent-item";
+
+
+            row.innerHTML = `
+
+                <strong>
+                    ${trip.from} → ${trip.to}
+                </strong>
+
+                <span>
+                    ${Number(trip.distance).toFixed(0)} KM
+                    •
+                    ${money(trip.total)}
+                    •
+                    ${trip.date || ""}
+                </span>
+            `;
+
+
+            container
+                .appendChild(
+                    row
                 );
 
-
-            element.className =
-                "recent-trip";
-
-
-            const route =
-                document.createElement(
-                    "strong"
-                );
-
-
-            route.textContent =
-                `${trip.from} → ${trip.to}`;
-
-
-            const details =
-                document.createElement(
-                    "span"
-                );
-
-
-            const sourceText =
-                trip.source === "estimated"
-                    ?
-                    "Estimated"
-                    :
-                    trip.source === "stored"
-                        ?
-                        "Stored"
-                        :
-                        "Custom";
-
-
-            details.textContent =
-                `${Number(trip.distance).toFixed(1)} KM • ${money(trip.cost)} • ${sourceText}`;
-
-
-            element.appendChild(
-                route
-            );
-
-
-            element.appendChild(
-                details
-            );
-
-
-            container.appendChild(
-                element
-            );
         }
     );
+
 }
 
 
-// ============================================
-// CLEAR HISTORY
-// ============================================
+// ======================================================
+// FUEL TYPE
+// ======================================================
 
-clearHistory.addEventListener(
-    "click",
-    () => {
+$("fuelType")
+    .addEventListener(
+        "change",
+        () => {
 
-        localStorage.removeItem(
-            "fuelwiseRecentTrips"
-        );
-
-
-        renderRecentTrips();
-    }
-);
+            const type =
+                $("fuelType").value;
 
 
-// ============================================
-// ERROR
-// ============================================
+            if (
+                type ===
+                "petrol"
 
-function showError(message) {
+                ||
 
-    errorMessage.textContent =
-        `⚠ ${message}`;
+                type ===
+                "diesel"
+            ) {
+
+                $("mileageLabel")
+                    .textContent =
+                    "Mileage (KM/L)";
 
 
-    errorMessage.classList.remove(
-        "hidden"
+                $("fuelPriceLabel")
+                    .textContent =
+                    "Fuel Price (₹/L)";
+
+            }
+
+            else if (
+                type ===
+                "cng"
+            ) {
+
+                $("mileageLabel")
+                    .textContent =
+                    "Efficiency (KM/KG)";
+
+
+                $("fuelPriceLabel")
+                    .textContent =
+                    "CNG Price (₹/KG)";
+
+            }
+
+            else {
+
+                $("mileageLabel")
+                    .textContent =
+                    "Efficiency (KM/kWh)";
+
+
+                $("fuelPriceLabel")
+                    .textContent =
+                    "Electricity Cost (₹/kWh)";
+
+            }
+
+        }
     );
-}
 
 
-function hideError() {
+// ======================================================
+// PASSENGER + / -
+// ======================================================
 
-    errorMessage.classList.add(
-        "hidden"
+$("plusPassenger")
+    .addEventListener(
+        "click",
+        () => {
+
+            let value =
+                Number(
+                    $("passengers").value
+                ) || 1;
+
+
+            $("passengers").value =
+                Math.min(
+                    20,
+                    value + 1
+                );
+
+        }
     );
-}
 
 
-// ============================================
-// PRINT
-// ============================================
+$("minusPassenger")
+    .addEventListener(
+        "click",
+        () => {
 
-document.getElementById(
-    "printBtn"
-).addEventListener(
-    "click",
-    () => {
-
-        window.print();
-    }
-);
+            let value =
+                Number(
+                    $("passengers").value
+                ) || 1;
 
 
-// ============================================
+            $("passengers").value =
+                Math.max(
+                    1,
+                    value - 1
+                );
+
+        }
+    );
+
+
+// ======================================================
+// EVENTS
+// ======================================================
+
+$("fromCity")
+    .addEventListener(
+        "change",
+        updateRouteStatus
+    );
+
+
+$("toCity")
+    .addEventListener(
+        "change",
+        updateRouteStatus
+    );
+
+
+$("swapBtn")
+    .addEventListener(
+        "click",
+        () => {
+
+            const from =
+                $("fromCity").value;
+
+
+            $("fromCity").value =
+                $("toCity").value;
+
+
+            $("toCity").value =
+                from;
+
+
+            const customFrom =
+                $("customFrom").value;
+
+
+            $("customFrom").value =
+                $("customTo").value;
+
+
+            $("customTo").value =
+                customFrom;
+
+
+            updateRouteStatus();
+
+        }
+    );
+
+
+$("calculateBtn")
+    .addEventListener(
+        "click",
+        calculateTrip
+    );
+
+
+$("printBtn")
+    .addEventListener(
+        "click",
+        () =>
+            window.print()
+    );
+
+
+$("clearHistory")
+    .addEventListener(
+        "click",
+        () => {
+
+            localStorage.removeItem(
+                "fuelwiseHistory"
+            );
+
+
+            renderHistory();
+
+        }
+    );
+
+
+// ======================================================
 // START
-// ============================================
+// ======================================================
 
-updateFuelLabels();
+populateCities();
 
-updateRouteMode();
+updateRouteStatus();
 
-renderRecentTrips();
+renderHistory();
