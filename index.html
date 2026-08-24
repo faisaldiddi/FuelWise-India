@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#07111f"
+    >
+
+    <title>FuelWise India | Smart Trip Planner</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+
+    <!-- BACKGROUND DECORATION -->
+
+    <div class="background-shape shape-one"></div>
+    <div class="background-shape shape-two"></div>
+    <div class="background-shape shape-three"></div>
+
+
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="logo">
+                🚗
+            </div>
+
+            <div>
+
+                <h1>
+                    FuelWise
+                    <span>India</span>
+                </h1>
+
+                <p>
+                    Smart Fuel & Trip Cost Planner
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-badge">
+            🇮🇳 Made for India
+        </div>
+
+    </header>
+
+
+
+    <main>
+
+
+        <!-- HERO -->
+
+        <section class="hero">
+
+            <div class="hero-pill">
+                ⚡ SMART ROAD TRIP PLANNER
+            </div>
+
+
+            <h2>
+
+                Plan the road.
+
+                <span>
+                    Know the cost.
+                </span>
+
+            </h2>
+
+
+            <p>
+
+                Estimate fuel, trip expenses, passenger cost
+                and overall journey budget for road trips across India.
+
+            </p>
+
+
+            <div class="hero-stats">
+
+                <div>
+                    <strong>₹</strong>
+                    <span>Cost Planning</span>
+                </div>
+
+                <div>
+                    <strong>⛽</strong>
+                    <span>Fuel Estimate</span>
+                </div>
+
+                <div>
+                    <strong>👥</strong>
+                    <span>Cost Split</span>
+                </div>
+
+                <div>
+                    <strong>🚘</strong>
+                    <span>Cab Compare</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ROUTE CARD -->
+
+        <section class="main-card reveal">
+
+            <div class="section-heading">
+
+                <div class="section-icon">
+                    🛣️
+                </div>
+
+
+                <div>
+
+                    <span>
+                        STEP 01
+                    </span>
+
+                    <h3>
+                        Select Your Route
+                    </h3>
+
+                    <p>
+                        Choose major cities or create a custom trip.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="route-selector">
+
+
+                <div class="field route-field">
+
+                    <label>
+                        Starting Point
+                    </label>
+
+                    <div class="input-shell">
+
+                        <span class="input-icon">
+                            🟢
+                        </span>
+
+                        <select id="fromCity"></select>
+
+                    </div>
+
+                </div>
+
+
+
+                <button
+                    id="swapBtn"
+                    class="swap-btn"
+                    type="button"
+                    title="Swap locations"
+                >
+
+                    ⇄
+
+                </button>
+
+
+
+                <div class="field route-field">
+
+                    <label>
+                        Destination
+                    </label>
+
+                    <div class="input-shell">
+
+                        <span class="input-icon">
+                            🔴
+                        </span>
+
+                        <select id="toCity"></select>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- CUSTOM ROUTE -->
+
+            <div
+                id="customLocationBox"
+                class="custom-location-box hidden"
+            >
+
+                <div class="custom-header">
+
+                    <div>
+
+                        <strong>
+                            📍 Custom Route
+                        </strong>
+
+                        <p>
+                            Enter any home, area, hotel or local destination.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label>
+                            From Location
+                        </label>
+
+                        <input
+                            id="customFrom"
+                            type="text"
+                            placeholder="Example: Andheri West, Mumbai"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            To Location
+                        </label>
+
+                        <input
+                            id="customTo"
+                            type="text"
+                            placeholder="Example: Hotel in Lonavala"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Road Distance
+                        </label>
+
+                        <div class="input-unit">
+
+                            <input
+                                id="customDistance"
+                                type="number"
+                                min="1"
+                                placeholder="108"
+                            >
+
+                            <span>
+                                KM
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                id="distanceInfo"
+                class="distance-info"
+            >
+
+                <div class="distance-icon">
+                    📍
+                </div>
+
+                <div>
+
+                    <span>
+                        ROUTE STATUS
+                    </span>
+
+                    <strong>
+                        Select your starting point and destination.
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- VEHICLE DETAILS -->
+
+        <section class="main-card reveal">
+
+            <div class="section-heading">
+
+                <div class="section-icon">
+                    🚘
+                </div>
+
+                <div>
+
+                    <span>
+                        STEP 02
+                    </span>
+
+                    <h3>
+                        Vehicle & Fuel
+                    </h3>
+
+                    <p>
+                        Tell us how your vehicle performs.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-grid">
+
+
+                <div class="field">
+
+                    <label>
+                        Trip Type
+                    </label>
+
+                    <select id="tripType">
+
+                        <option value="oneway">
+                            ➡️ One Way
+                        </option>
+
+                        <option value="round">
+                            🔄 Round Trip
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label>
+                        Vehicle
+                    </label>
+
+                    <select id="vehicleType">
+
+                        <option>
+                            🏍 Bike
+                        </option>
+
+                        <option selected>
+                            🚗 Car
+                        </option>
+
+                        <option>
+                            🚘 Sedan
+                        </option>
+
+                        <option>
+                            🚙 SUV
+                        </option>
+
+                        <option>
+                            🚐 Van
+                        </option>
+
+                        <option>
+                            🛻 Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label>
+                        Fuel / Energy Type
+                    </label>
+
+                    <select id="fuelType">
+
+                        <option value="petrol">
+                            ⛽ Petrol
+                        </option>
+
+                        <option value="diesel">
+                            🛢 Diesel
+                        </option>
+
+                        <option value="cng">
+                            🔵 CNG
+                        </option>
+
+                        <option value="electric">
+                            ⚡ Electric
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label id="mileageLabel">
+                        Mileage
+                    </label>
+
+                    <div class="input-unit">
+
+                        <input
+                            id="mileage"
+                            type="number"
+                            min="0.1"
+                            step="0.1"
+                            value="15"
+                        >
+
+                        <span id="mileageUnit">
+                            KM/L
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label id="fuelPriceLabel">
+                        Fuel Price
+                    </label>
+
+                    <div class="input-unit">
+
+                        <span class="currency-symbol">
+                            ₹
+                        </span>
+
+                        <input
+                            id="fuelPrice"
+                            type="number"
+                            min="0.1"
+                            step="0.01"
+                            value="105"
+                        >
+
+                        <span id="priceUnit">
+                            /L
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label>
+                        Travellers
+                    </label>
+
+                    <div class="passenger-control">
+
+                        <button
+                            id="minusPassenger"
+                            type="button"
+                        >
+                            −
+                        </button>
+
+                        <input
+                            id="passengers"
+                            type="number"
+                            min="1"
+                            value="4"
+                        >
+
+                        <button
+                            id="plusPassenger"
+                            type="button"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label>
+                        Planning Reserve
+                    </label>
+
+                    <select id="reserve">
+
+                        <option value="0">
+                            No Reserve
+                        </option>
+
+                        <option value="5">
+                            5%
+                        </option>
+
+                        <option value="10" selected>
+                            10%
+                        </option>
+
+                        <option value="15">
+                            15%
+                        </option>
+
+                        <option value="20">
+                            20%
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label>
+                        Tank Capacity
+                    </label>
+
+                    <div class="input-unit">
+
+                        <input
+                            id="tankCapacity"
+                            type="number"
+                            min="0"
+                            placeholder="40"
+                        >
+
+                        <span>
+                            L
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="field">
+
+                    <label>
+                        Cab Fare Comparison
+                    </label>
+
+                    <div class="input-unit">
+
+                        <span class="currency-symbol">
+                            ₹
+                        </span>
+
+                        <input
+                            id="cabFare"
+                            type="number"
+                            min="0"
+                            placeholder="Optional"
+                        >
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- EXPENSES -->
+
+        <section class="main-card reveal">
+
+            <div class="section-heading">
+
+                <div class="section-icon">
+                    💳
+                </div>
+
+                <div>
+
+                    <span>
+                        STEP 03
+                    </span>
+
+                    <h3>
+                        Additional Expenses
+                    </h3>
+
+                    <p>
+                        Build your complete road-trip budget.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="expense-grid">
+
+
+                <div class="expense-card">
+
+                    <div class="expense-icon">
+                        🛣️
+                    </div>
+
+                    <label>
+                        Toll
+                    </label>
+
+                    <div class="expense-input">
+
+                        <span>₹</span>
+
+                        <input
+                            id="toll"
+                            type="number"
+                            min="0"
+                            value="0"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="expense-card">
+
+                    <div class="expense-icon">
+                        🅿️
+                    </div>
+
+                    <label>
+                        Parking
+                    </label>
+
+                    <div class="expense-input">
+
+                        <span>₹</span>
+
+                        <input
+                            id="parking"
+                            type="number"
+                            min="0"
+                            value="0"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="expense-card">
+
+                    <div class="expense-icon">
+                        🍔
+                    </div>
+
+                    <label>
+                        Food
+                    </label>
+
+                    <div class="expense-input">
+
+                        <span>₹</span>
+
+                        <input
+                            id="food"
+                            type="number"
+                            min="0"
+                            value="0"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="expense-card">
+
+                    <div class="expense-icon">
+                        🏨
+                    </div>
+
+                    <label>
+                        Hotel / Stay
+                    </label>
+
+                    <div class="expense-input">
+
+                        <span>₹</span>
+
+                        <input
+                            id="hotel"
+                            type="number"
+                            min="0"
+                            value="0"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="expense-card">
+
+                    <div class="expense-icon">
+                        ➕
+                    </div>
+
+                    <label>
+                        Other
+                    </label>
+
+                    <div class="expense-input">
+
+                        <span>₹</span>
+
+                        <input
+                            id="other"
+                            type="number"
+                            min="0"
+                            value="0"
+                        >
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <button
+                id="calculateBtn"
+                class="calculate-btn"
+                type="button"
+            >
+
+                <span>
+                    🚗
+                </span>
+
+                Calculate My Trip
+
+                <span class="button-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <div
+                id="errorMessage"
+                class="error-message hidden"
+            ></div>
+
+        </section>
+
+
+
+        <!-- RESULTS -->
+
+        <section
+            id="results"
+            class="results hidden"
+        >
+
+
+            <div class="result-top">
+
+                <div>
+
+                    <span class="result-label">
+                        YOUR ROAD TRIP
+                    </span>
+
+                    <h2>
+                        Trip Analysis
+                    </h2>
+
+                </div>
+
+
+                <button
+                    id="printBtn"
+                    class="print-btn"
+                    type="button"
+                >
+                    🖨 Print
+                </button>
+
+            </div>
+
+
+
+            <!-- ROUTE DISPLAY -->
+
+            <div class="route-result">
+
+                <div class="route-point">
+
+                    <span class="point-dot green-dot"></span>
+
+                    <div>
+
+                        <small>
+                            FROM
+                        </small>
+
+                        <strong id="resultFrom">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="route-line">
+
+                    <span>
+                        🚗
+                    </span>
+
+                </div>
+
+
+                <div class="route-point destination">
+
+                    <span class="point-dot red-dot"></span>
+
+                    <div>
+
+                        <small>
+                            TO
+                        </small>
+
+                        <strong id="resultTo">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SUMMARY -->
+
+            <div class="summary-grid">
+
+
+                <div class="result-card">
+
+                    <div class="result-icon">
+                        🛣️
+                    </div>
+
+                    <p>
+                        Total Distance
+                    </p>
+
+                    <strong id="resultDistance">
+                        0 KM
+                    </strong>
+
+                </div>
+
+
+
+                <div class="result-card">
+
+                    <div class="result-icon">
+                        ⛽
+                    </div>
+
+                    <p id="energyTitle">
+                        Fuel Required
+                    </p>
+
+                    <strong id="resultFuel">
+                        0 L
+                    </strong>
+
+                </div>
+
+
+
+                <div class="result-card">
+
+                    <div class="result-icon">
+                        💰
+                    </div>
+
+                    <p>
+                        Fuel Cost
+                    </p>
+
+                    <strong id="resultFuelCost">
+                        ₹0
+                    </strong>
+
+                </div>
+
+
+
+                <div class="result-card">
+
+                    <div class="result-icon">
+                        📍
+                    </div>
+
+                    <p>
+                        Cost / KM
+                    </p>
+
+                    <strong id="resultCostKm">
+                        ₹0
+                    </strong>
+
+                </div>
+
+
+
+                <div class="result-card main-result-card">
+
+                    <div class="result-icon">
+                        💳
+                    </div>
+
+                    <p>
+                        Total Trip Cost
+                    </p>
+
+                    <strong id="resultTotal">
+                        ₹0
+                    </strong>
+
+                </div>
+
+
+
+                <div class="result-card">
+
+                    <div class="result-icon">
+                        👥
+                    </div>
+
+                    <p>
+                        Per Person
+                    </p>
+
+                    <strong id="resultPerPerson">
+                        ₹0
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- FUEL PLANNING -->
+
+            <div class="analysis-card">
+
+                <div class="analysis-title">
+
+                    <div>
+
+                        <span>
+                            ⛽
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                Fuel Planning
+                            </h3>
+
+                            <p>
+                                Requirement including your selected reserve.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="analysis-grid">
+
+
+                    <div>
+
+                        <span>
+                            Base Requirement
+                        </span>
+
+                        <strong id="baseFuel">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            With Reserve
+                        </span>
+
+                        <strong id="reserveFuel">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Tank Status
+                        </span>
+
+                        <strong id="tankStatus">
+                            Not provided
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- COST BREAKDOWN -->
+
+            <div class="analysis-card">
+
+                <div class="analysis-title">
+
+                    <div>
+
+                        <span>
+                            📊
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                Cost Breakdown
+                            </h3>
+
+                            <p>
+                                See where your trip budget is going.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div id="breakdown"></div>
+
+            </div>
+
+
+
+            <!-- CAB COMPARISON -->
+
+            <div
+                id="cabComparison"
+                class="analysis-card hidden"
+            >
+
+                <div class="analysis-title">
+
+                    <div>
+
+                        <span>
+                            🚕
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                Own Vehicle vs Cab
+                            </h3>
+
+                            <p>
+                                Compare your estimated total costs.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="cab-grid">
+
+
+                    <div class="cab-option">
+
+                        <span>
+                            🚗 Own Vehicle
+                        </span>
+
+                        <strong id="ownVehicleCost">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="vs">
+                        VS
+                    </div>
+
+
+                    <div class="cab-option">
+
+                        <span>
+                            🚕 Cab
+                        </span>
+
+                        <strong id="cabCost">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    id="cabMessage"
+                    class="comparison-message"
+                ></div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- RECENT TRIPS -->
+
+        <section class="main-card reveal">
+
+            <div class="section-heading recent-heading">
+
+                <div>
+
+                    <div class="heading-flex">
+
+                        <div class="section-icon">
+                            🕘
+                        </div>
+
+                        <div>
+
+                            <span>
+                                LOCAL HISTORY
+                            </span>
+
+                            <h3>
+                                Recent Trips
+                            </h3>
+
+                            <p>
+                                Your latest calculations saved on this device.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="clearHistory"
+                    class="clear-btn"
+                    type="button"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+
+            <div id="recentTrips">
+
+                <div class="empty-state">
+
+                    <div>
+                        🛣️
+                    </div>
+
+                    <strong>
+                        No road trips yet
+                    </strong>
+
+                    <span>
+                        Your latest calculations will appear here.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <footer>
+
+        <strong>
+            FuelWise India
+        </strong>
+
+        <p>
+            Smart Road Trip Cost Planner
+        </p>
+
+        <span>
+            Built-in routes use approximate planning distances.
+            Use Custom Location for other journeys.
+        </span>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
